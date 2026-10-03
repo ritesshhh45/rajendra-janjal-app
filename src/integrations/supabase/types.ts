@@ -14,13 +14,217 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          header_image_url: string | null
+          id: number
+          leader_name: string
+          leader_photo_url: string | null
+          leader_title: string
+          splash_logo_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          header_image_url?: string | null
+          id?: number
+          leader_name?: string
+          leader_photo_url?: string | null
+          leader_title?: string
+          splash_logo_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          header_image_url?: string | null
+          id?: number
+          leader_name?: string
+          leader_photo_url?: string | null
+          leader_title?: string
+          splash_logo_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      citizens: {
+        Row: {
+          address: string
+          created_at: string
+          device_id: string | null
+          dob: string | null
+          id: string
+          mobile: string
+          name: string
+          session_token: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          device_id?: string | null
+          dob?: string | null
+          id?: string
+          mobile: string
+          name: string
+          session_token?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          device_id?: string | null
+          dob?: string | null
+          id?: string
+          mobile?: string
+          name?: string
+          session_token?: string
+        }
+        Relationships: []
+      }
+      device_tokens: {
+        Row: {
+          citizen_id: string | null
+          created_at: string
+          fcm_token: string
+          id: string
+          platform: string | null
+        }
+        Insert: {
+          citizen_id?: string | null
+          created_at?: string
+          fcm_token: string
+          id?: string
+          platform?: string | null
+        }
+        Update: {
+          citizen_id?: string | null
+          created_at?: string
+          fcm_token?: string
+          id?: string
+          platform?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_tokens_citizen_id_fkey"
+            columns: ["citizen_id"]
+            isOneToOne: false
+            referencedRelation: "citizens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gallery: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          citizen_id: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          message: string
+          title: string
+          type: string
+        }
+        Insert: {
+          citizen_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          message: string
+          title: string
+          type?: string
+        }
+        Update: {
+          citizen_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          message?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_citizen_id_fkey"
+            columns: ["citizen_id"]
+            isOneToOne: false
+            referencedRelation: "citizens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schemes: {
+        Row: {
+          apply_link: string | null
+          created_at: string
+          description: string | null
+          eligibility: string | null
+          how_to_apply: string | null
+          id: string
+          image_url: string | null
+          title_en: string
+          title_mr: string
+        }
+        Insert: {
+          apply_link?: string | null
+          created_at?: string
+          description?: string | null
+          eligibility?: string | null
+          how_to_apply?: string | null
+          id?: string
+          image_url?: string | null
+          title_en: string
+          title_mr: string
+        }
+        Update: {
+          apply_link?: string | null
+          created_at?: string
+          description?: string | null
+          eligibility?: string | null
+          how_to_apply?: string | null
+          id?: string
+          image_url?: string | null
+          title_en?: string
+          title_mr?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
