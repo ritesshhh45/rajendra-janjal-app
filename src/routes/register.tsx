@@ -44,10 +44,10 @@ function Register() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: Record<string, string> = {};
-    if (form.name.trim().length < 2) errs.name = t("required");
-    if (!/^[6-9]\d{9}$/.test(form.mobile)) errs.mobile = t("mobileInvalid");
-    if (form.address.trim().length < 3) errs.address = t("required");
-    if (!form.dob) errs.dob = t("required");
+    if (form.name.trim().length < 2) errs["name"] = t("required");
+    if (!/^[6-9]\d{9}$/.test(form.mobile)) errs["mobile"] = t("mobileInvalid");
+    if (form.address.trim().length < 3) errs["address"] = t("required");
+    if (!form.dob) errs["dob"] = t("required");
     setErrors(errs);
     if (Object.keys(errs).length) return;
     setBusy(true);
