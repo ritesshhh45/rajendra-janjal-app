@@ -84,16 +84,16 @@ function Register() {
           <h1 className="font-display text-3xl font-bold leading-tight">{t("welcome")}</h1>
           <p className="mt-1 text-muted-foreground">{t("welcomeSub")}</p>
         </div>
-        <Field label={t("fullName")} error={errors.name}>
+        <Field label={t("fullName")} error={errors["name"]}>
           <Input className="h-12 text-base" autoComplete="name" {...field("name")} />
         </Field>
-        <Field label={t("mobile")} error={errors.mobile}>
+        <Field label={t("mobile")} error={errors["mobile"]}>
           <Input className="h-12 text-base" inputMode="numeric" type="tel" placeholder="98XXXXXXXX" {...field("mobile")} />
         </Field>
-        <Field label={t("address")} error={errors.address}>
+        <Field label={t("address")} error={errors["address"]}>
           <Textarea className="min-h-20 text-base" {...field("address")} />
         </Field>
-        <Field label={t("dob")} error={errors.dob}>
+        <Field label={t("dob")} error={errors["dob"]}>
           <Input className="h-12 text-base" type="date" max={new Date().toISOString().slice(0, 10)} {...field("dob")} />
         </Field>
         <Button type="submit" variant="saffron" size="xl" className="w-full" disabled={busy}>
@@ -105,7 +105,7 @@ function Register() {
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function Field({ label, error, children }: { label: string; error?: string | undefined; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-base">{label}</Label>
