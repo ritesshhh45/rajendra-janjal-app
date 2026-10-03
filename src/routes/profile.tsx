@@ -49,7 +49,7 @@ function Profile() {
   }, [me]);
 
   const save = async () => {
-    if (!session || name.trim().length < 2 || address.trim().length < 3) return toast.error(t("required"));
+    if (!session || name.trim().length < 2 || address.trim().length < 3) { toast.error(t("required")); return; }
     setBusy(true);
     try {
       await update({ data: { ...session, name, address } });

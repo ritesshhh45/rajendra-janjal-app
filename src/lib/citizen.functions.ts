@@ -24,7 +24,7 @@ export const registerCitizen = createServerFn({ method: "POST" })
     if (existing) return { id: existing.id, token: existing.session_token, existing: true };
     const { data: row, error } = await supabaseAdmin
       .from("citizens")
-      .insert(data)
+      .insert({ ...data, device_id: data.device_id ?? null })
       .select("id, session_token")
       .single();
     if (error) throw new Error(error.message);

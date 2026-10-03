@@ -39,7 +39,7 @@ function Gallery() {
       </div>
       {!isLoading && items.length === 0 && <EmptyState icon={Images} text={t("empty")} />}
 
-      {idx !== null && items[idx] && (
+      {idx !== null && items[idx] && (() => { const g = items[idx]!; return (
         <div
           className="fixed inset-0 z-50 flex flex-col bg-foreground"
           onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
@@ -54,7 +54,7 @@ function Gallery() {
             </button>
           </div>
           <div className="relative flex flex-1 items-center justify-center">
-            <img src={items[idx].image_url} alt="" className="max-h-full max-w-full object-contain" />
+            <img src={g.image_url} alt="" className="max-h-full max-w-full object-contain" />
             <button onClick={() => go(-1)} aria-label="Previous" className="absolute left-1 grid h-12 w-12 place-items-center text-background">
               <ChevronLeft className="h-8 w-8" />
             </button>
@@ -62,9 +62,9 @@ function Gallery() {
               <ChevronRight className="h-8 w-8" />
             </button>
           </div>
-          <p className="p-5 text-center text-background">{items[idx].caption}</p>
+          <p className="p-5 text-center text-background">{g.caption}</p>
         </div>
-      )}
+      ); })()}
     </MobileShell>
   );
 }
