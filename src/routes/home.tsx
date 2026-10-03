@@ -1,14 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { FileText, Images, Bell, UserRound, Phone } from "lucide-react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { LangToggle } from "@/components/app/LangToggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSettings } from "@/lib/content";
 import { useI18n, type Key } from "@/lib/i18n";
-import { useSession } from "@/lib/session";
-import { getMe } from "@/lib/citizen.functions";
+import { useMe } from "@/lib/use-me";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -21,16 +18,6 @@ export const Route = createFileRoute("/home")({
   }),
   component: HomePage,
 });
-
-export function useMe() {
-  const { session } = useSession();
-  const fn = useServerFn(getMe);
-  return useQuery({
-    queryKey: ["me", session?.id],
-    queryFn: () => fn({ data: session! }),
-    enabled: !!session,
-  });
-}
 
 const cards: { to: "/schemes" | "/gallery" | "/notifications" | "/about" | "/contact"; icon: typeof Bell; label: Key; wide?: boolean }[] = [
   { to: "/schemes", icon: FileText, label: "schemes", wide: true },
