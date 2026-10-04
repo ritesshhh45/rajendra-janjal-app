@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Home, FileText, Images, Bell, User, ChevronLeft } from "lucide-react";
+import { Home, LayoutGrid, Landmark, Bell, User, ChevronLeft, MessageCircle, AlertCircle } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { useI18n, type Key } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
+import { useSettings, waLink } from "@/lib/content";
 
-const tabs: { to: "/home" | "/schemes" | "/gallery" | "/notifications" | "/profile"; icon: typeof Home; label: Key }[] = [
+const tabs: { to: "/home" | "/services" | "/schemes" | "/updates" | "/profile"; icon: typeof Home; label: Key }[] = [
   { to: "/home", icon: Home, label: "home" },
-  { to: "/schemes", icon: FileText, label: "schemes" },
-  { to: "/gallery", icon: Images, label: "gallery" },
-  { to: "/notifications", icon: Bell, label: "notifications" },
+  { to: "/services", icon: LayoutGrid, label: "services" },
+  { to: "/schemes", icon: Landmark, label: "schemes" },
+  { to: "/updates", icon: Bell, label: "updates" },
   { to: "/profile", icon: User, label: "profile" },
 ];
 
@@ -22,14 +23,19 @@ export function MobileShell({
   title,
   back,
   requireSession = true,
+  header,
+  fab,
 }: {
   children: ReactNode;
   title?: string;
   back?: boolean;
   requireSession?: boolean;
+  header?: ReactNode;
+  fab?: boolean;
 }) {
   const { t } = useI18n();
   const { session, ready } = useSession();
+  const { data: s } = useSettings();
   const navigate = useNavigate();
   useEffect(() => {
     if (requireSession && ready && !session) navigate({ to: "/register", replace: true });
@@ -37,8 +43,9 @@ export function MobileShell({
 
   return (
     <PhoneFrame>
-      {title && (
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-background/95 px-3 backdrop-blur">
+      {header}
+      {title && !header && (
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/95 px-3 backdrop-blur">
           {back && (
             <button
               onClick={() => window.history.back()}
@@ -48,20 +55,33 @@ export function MobileShell({
               <ChevronLeft className="h-6 w-6" />
             </button>
           )}
-          <h1 className="truncate px-1 font-display text-xl font-bold">{title}</h1>
+          <h1 className="truncate px-1 font-display text-2xl font-bold">{title}</h1>
         </header>
       )}
-      <main className="pb-24">{children}</main>
+      <main className="pb-28">{children}</main>
+      {fab && s?.office_whatsapp && (
+        <a
+          href={waLink(s.office_whatsapp, "नमस्कार साहेब 🙏")}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="WhatsApp"
+          className="fixed bottom-24 z-30 grid h-16 w-16 place-items-center rounded-full bg-success text-success-foreground shadow-card [right:max(1rem,calc(50vw-215px+1rem))]"
+        >
+          <MessageCircle className="h-8 w-8" />
+        </a>
+      )}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-[430px] border-t border-border bg-card">
         <ul className="grid grid-cols-5">
           {tabs.map(({ to, icon: Icon, label }) => (
             <li key={to}>
               <Link
                 to={to}
-                className="flex min-h-[60px] flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground"
+                className="group flex min-h-[64px] flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-muted-foreground"
                 activeProps={{ className: "text-primary" }}
               >
-                <Icon className="h-6 w-6" />
+                <span className="grid h-9 w-12 place-items-center rounded-full group-data-[status=active]:bg-secondary">
+                  <Icon className="h-6 w-6" />
+                </span>
                 <span className="truncate">{t(label)}</span>
               </Link>
             </li>
@@ -79,6 +99,25 @@ export function EmptyState({ icon: Icon, text }: { icon: typeof Home; text: stri
         <Icon className="h-8 w-8" />
       </div>
       <p>{text}</p>
+    </div>
+  );
+}
+
+export function ErrorState() {
+  const { t } = useI18n();
+  return <EmptyState icon={AlertCircle} text={t("loadError")} />;
+}
+
+export function SectionHead({ title, to }: { title: string; to?: "/updates" | "/schemes" | "/gallery" }) {
+  const { t } = useI18n();
+  return (
+    <div className="mb-3 mt-7 flex items-center justify-between px-5">
+      <h2 className="font-display text-xl font-bold">{title}</h2>
+      {to && (
+        <Link to={to} className="min-h-9 px-1 py-1 text-sm font-semibold text-primary">
+          {t("seeAll")} →
+        </Link>
+      )}
     </div>
   );
 }
