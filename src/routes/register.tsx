@@ -70,6 +70,7 @@ function Register() {
 
   return (
     <PhoneFrame>
+      <div className="min-h-dvh bg-splash-cream">
       <div className="relative h-[50vh] min-h-[320px] w-full overflow-hidden">
         <img
           src={data?.leader_photo_url ?? fallbacks.leader}
@@ -101,6 +102,7 @@ function Register() {
           {t("register")}
         </Button>
       </form>
+      </div>
     </PhoneFrame>
   );
 }
