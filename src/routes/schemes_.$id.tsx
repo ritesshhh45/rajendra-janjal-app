@@ -4,7 +4,7 @@ import { ExternalLink, FileText } from "lucide-react";
 import { MobileShell, EmptyState } from "@/components/app/MobileShell";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { schemesQuery } from "@/lib/content";
+import { schemesQuery, useL } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/schemes_/$id")({
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/schemes_/$id")({
 
 function SchemeDetail() {
   const { id } = Route.useParams();
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
+  const L = useL();
   const { data, isLoading } = useQuery(schemesQuery);
   const s = data?.find((x) => x.id === id);
 
@@ -34,8 +35,8 @@ function SchemeDetail() {
       ) : (
         <article className="space-y-5 p-5">
           {s.image_url && <img src={s.image_url} alt="" className="w-full rounded-2xl object-cover" />}
-          <h2 className="font-display text-2xl font-bold leading-tight">{lang === "mr" ? s.title_mr : s.title_en}</h2>
-          {s.description && <p className="text-base leading-relaxed">{s.description}</p>}
+          <h2 className="font-display text-2xl font-bold leading-tight">{L(s.title_mr, s.title_en)}</h2>
+          {L(s.description_mr, s.description_en) && <p className="text-base leading-relaxed">{L(s.description_mr, s.description_en)}</p>}
           {s.eligibility && <Section title={t("eligibility")} body={s.eligibility} />}
           {s.how_to_apply && <Section title={t("howToApply")} body={s.how_to_apply} />}
           {s.apply_link && (

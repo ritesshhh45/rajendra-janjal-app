@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MobileShell } from "@/components/app/MobileShell";
-import { useSettings } from "@/lib/content";
+import { useSettings, useL } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/about")({
@@ -18,12 +18,14 @@ export const Route = createFileRoute("/about")({
 function About() {
   const { t } = useI18n();
   const { data: s } = useSettings();
+  const L = useL();
   return (
     <MobileShell title={t("about")} back>
       <div className="p-5">
-        <img src={s?.leader_photo_url} alt={s?.leader_name} className="aspect-square w-full rounded-3xl object-cover object-top shadow-card" />
-        <h2 className="mt-5 font-display text-2xl font-bold">{s?.leader_name}</h2>
-        <p className="font-semibold text-primary">{s?.leader_title}</p>
+        <img src={s?.leader_photo_url} alt="" className="aspect-square w-full rounded-3xl object-cover object-top shadow-card" />
+        <h2 className="mt-5 font-display text-2xl font-bold">{s && L(s.name_mr, s.name_en)}</h2>
+        <p className="font-semibold text-primary">{s && `${L(s.designation_mr, s.designation_en)} · ${L(s.ward_mr, s.ward_en)}`}</p>
+        {s && <p className="mt-2 font-semibold italic text-success">{L(s.slogan_mr, s.slogan_en)}</p>}
         <p className="mt-3 text-base leading-relaxed">{t("aboutText")}</p>
       </div>
     </MobileShell>

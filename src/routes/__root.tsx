@@ -15,6 +15,12 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/lib/i18n";
 import { SessionProvider } from "@/lib/session";
 import { Toaster } from "@/components/ui/sonner";
+import { useLiveContent } from "@/lib/content";
+
+function LiveContent() {
+  useLiveContent();
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -81,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#F37021" },
+      { name: "theme-color", content: "#F26B1D" },
       { title: "Digital Ward — Rajendra Janjal" },
       { name: "description", content: "Ward updates from Deputy Mayor Rajendra Janjal." },
       { property: "og:title", content: "Digital Ward — Rajendra Janjal" },
@@ -95,10 +101,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -129,6 +135,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <I18nProvider>
         <SessionProvider>
+          <LiveContent />
           <Outlet />
           <Toaster position="top-center" />
         </SessionProvider>

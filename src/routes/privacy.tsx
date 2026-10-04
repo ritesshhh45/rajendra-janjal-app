@@ -13,8 +13,8 @@ export const Route = createFileRoute("/privacy")({
   component: () => (
     <MobileShell title="Privacy Policy" back requireSession={false}>
       <div className="space-y-4 p-5 leading-relaxed">
-        <p><b>What we collect.</b> When you register we collect your name, mobile number, address and date of birth, plus a device notification token so we can reach your phone.</p>
-        <p><b>Why.</b> This information is used only to send you ward updates, announcements and government scheme information from the office of Rajendra Janjal, and to send you birthday wishes.</p>
+        <p><b>What we collect.</b> When you register we collect your name, mobile number, address and date of birth, and any complaints you submit, plus a device notification token so we can reach your phone.</p>
+        <p><b>Why.</b> This information is used only to resolve your complaints, send you ward updates, announcements and government scheme information from the office of Rajendra Janjal, and to send you birthday wishes.</p>
         <p><b>Sharing.</b> We do not sell or share your information with third parties. Notifications are delivered through Google Firebase Cloud Messaging.</p>
         <p><b>Storage.</b> Your data is stored securely and accessible only to authorised ward office staff.</p>
         <p><b>Your choices.</b> You can edit your details or permanently delete your account and all associated data at any time from the Profile screen.</p>

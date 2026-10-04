@@ -16,46 +16,121 @@ export type Database = {
     Tables: {
       admins: {
         Row: {
+          approved: boolean
           created_at: string
+          email: string | null
+          is_primary: boolean
           user_id: string
         }
         Insert: {
+          approved?: boolean
           created_at?: string
+          email?: string | null
+          is_primary?: boolean
           user_id: string
         }
         Update: {
+          approved?: boolean
           created_at?: string
+          email?: string | null
+          is_primary?: boolean
           user_id?: string
         }
         Relationships: []
       }
       app_settings: {
         Row: {
+          app_icon_url: string | null
+          app_name: string
+          designation_en: string
+          designation_mr: string
           header_image_url: string | null
+          header_photo_url: string | null
           id: number
           leader_name: string
           leader_photo_url: string | null
           leader_title: string
+          name_en: string
+          name_mr: string
+          office_address: string
+          office_lat: number | null
+          office_lng: number | null
+          office_phone: string
+          office_whatsapp: string
+          party_logo_url: string | null
+          party_name_en: string
+          party_name_mr: string
+          slogan_en: string
+          slogan_mr: string
           splash_logo_url: string | null
+          splash_photo_url: string | null
+          tagline_en: string
+          tagline_mr: string
           updated_at: string
+          ward_en: string
+          ward_mr: string
         }
         Insert: {
+          app_icon_url?: string | null
+          app_name?: string
+          designation_en?: string
+          designation_mr?: string
           header_image_url?: string | null
+          header_photo_url?: string | null
           id?: number
           leader_name?: string
           leader_photo_url?: string | null
           leader_title?: string
+          name_en?: string
+          name_mr?: string
+          office_address?: string
+          office_lat?: number | null
+          office_lng?: number | null
+          office_phone?: string
+          office_whatsapp?: string
+          party_logo_url?: string | null
+          party_name_en?: string
+          party_name_mr?: string
+          slogan_en?: string
+          slogan_mr?: string
           splash_logo_url?: string | null
+          splash_photo_url?: string | null
+          tagline_en?: string
+          tagline_mr?: string
           updated_at?: string
+          ward_en?: string
+          ward_mr?: string
         }
         Update: {
+          app_icon_url?: string | null
+          app_name?: string
+          designation_en?: string
+          designation_mr?: string
           header_image_url?: string | null
+          header_photo_url?: string | null
           id?: number
           leader_name?: string
           leader_photo_url?: string | null
           leader_title?: string
+          name_en?: string
+          name_mr?: string
+          office_address?: string
+          office_lat?: number | null
+          office_lng?: number | null
+          office_phone?: string
+          office_whatsapp?: string
+          party_logo_url?: string | null
+          party_name_en?: string
+          party_name_mr?: string
+          slogan_en?: string
+          slogan_mr?: string
           splash_logo_url?: string | null
+          splash_photo_url?: string | null
+          tagline_en?: string
+          tagline_mr?: string
           updated_at?: string
+          ward_en?: string
+          ward_mr?: string
         }
         Relationships: []
       }
@@ -92,6 +167,48 @@ export type Database = {
         }
         Relationships: []
       }
+      complaints: {
+        Row: {
+          category_id: string | null
+          citizen_id: string
+          created_at: string
+          id: string
+          message: string
+          status: string
+        }
+        Insert: {
+          category_id?: string | null
+          citizen_id: string
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+        }
+        Update: {
+          category_id?: string | null
+          citizen_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_citizen_id_fkey"
+            columns: ["citizen_id"]
+            isOneToOne: false
+            referencedRelation: "citizens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       device_tokens: {
         Row: {
           citizen_id: string | null
@@ -127,21 +244,33 @@ export type Database = {
       gallery: {
         Row: {
           caption: string | null
+          caption_en: string | null
+          caption_mr: string | null
           created_at: string
           id: string
           image_url: string
+          sort_order: number
+          video_link: string | null
         }
         Insert: {
           caption?: string | null
+          caption_en?: string | null
+          caption_mr?: string | null
           created_at?: string
           id?: string
           image_url: string
+          sort_order?: number
+          video_link?: string | null
         }
         Update: {
           caption?: string | null
+          caption_en?: string | null
+          caption_mr?: string | null
           created_at?: string
           id?: string
           image_url?: string
+          sort_order?: number
+          video_link?: string | null
         }
         Relationships: []
       }
@@ -188,10 +317,14 @@ export type Database = {
           apply_link: string | null
           created_at: string
           description: string | null
+          description_en: string | null
+          description_mr: string | null
           eligibility: string | null
           how_to_apply: string | null
+          icon: string | null
           id: string
           image_url: string | null
+          sort_order: number
           title_en: string
           title_mr: string
         }
@@ -199,10 +332,14 @@ export type Database = {
           apply_link?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
+          description_mr?: string | null
           eligibility?: string | null
           how_to_apply?: string | null
+          icon?: string | null
           id?: string
           image_url?: string | null
+          sort_order?: number
           title_en: string
           title_mr: string
         }
@@ -210,10 +347,119 @@ export type Database = {
           apply_link?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
+          description_mr?: string | null
           eligibility?: string | null
           how_to_apply?: string | null
+          icon?: string | null
           id?: string
           image_url?: string | null
+          sort_order?: number
+          title_en?: string
+          title_mr?: string
+        }
+        Relationships: []
+      }
+      service_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          icon: string
+          id: string
+          name_en: string
+          name_mr: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          icon?: string
+          id?: string
+          name_en: string
+          name_mr: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          icon?: string
+          id?: string
+          name_en?: string
+          name_mr?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      updates: {
+        Row: {
+          body_en: string
+          body_mr: string
+          category_en: string
+          category_mr: string
+          created_at: string
+          id: string
+          is_alert: boolean
+          title_en: string
+          title_mr: string
+        }
+        Insert: {
+          body_en?: string
+          body_mr?: string
+          category_en?: string
+          category_mr?: string
+          created_at?: string
+          id?: string
+          is_alert?: boolean
+          title_en: string
+          title_mr: string
+        }
+        Update: {
+          body_en?: string
+          body_mr?: string
+          category_en?: string
+          category_mr?: string
+          created_at?: string
+          id?: string
+          is_alert?: boolean
+          title_en?: string
+          title_mr?: string
+        }
+        Relationships: []
+      }
+      works: {
+        Row: {
+          created_at: string
+          description_en: string
+          description_mr: string
+          id: string
+          photo_url: string | null
+          sort_order: number
+          status_en: string
+          status_mr: string
+          title_en: string
+          title_mr: string
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string
+          description_mr?: string
+          id?: string
+          photo_url?: string | null
+          sort_order?: number
+          status_en?: string
+          status_mr?: string
+          title_en: string
+          title_mr: string
+        }
+        Update: {
+          created_at?: string
+          description_en?: string
+          description_mr?: string
+          id?: string
+          photo_url?: string | null
+          sort_order?: number
+          status_en?: string
+          status_mr?: string
           title_en?: string
           title_mr?: string
         }

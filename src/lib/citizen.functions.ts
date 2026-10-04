@@ -46,6 +46,33 @@ export const getMe = createServerFn({ method: "POST" })
   .inputValidator((d) => auth.parse(d))
   .handler(async ({ data }) => (await loadCitizen(data.id, data.token)).citizen);
 
+export const submitComplaint = createServerFn({ method: "POST" })
+  .inputValidator((d) =>
+    auth.extend({ category_id: z.string().uuid(), message: z.string().trim().max(1000) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin, citizen } = await loadCitizen(data.id, data.token);
+    if (!citizen) throw new Error("Not found");
+    const { error } = await supabaseAdmin
+      .from("complaints")
+      .insert({ citizen_id: citizen.id, category_id: data.category_id, message: data.message });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const myComplaints = createServerFn({ method: "POST" })
+  .inputValidator((d) => auth.parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin, citizen } = await loadCitizen(data.id, data.token);
+    if (!citizen) return [];
+    const { data: rows } = await supabaseAdmin
+      .from("complaints")
+      .select("id, message, status, created_at, service_categories(name_mr, name_en)")
+      .eq("citizen_id", citizen.id)
+      .order("created_at", { ascending: false });
+    return rows ?? [];
+  });
+
 export const updateMe = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     auth
@@ -69,6 +96,7 @@ export const deleteMe = createServerFn({ method: "POST" })
     const { supabaseAdmin, citizen } = await loadCitizen(data.id, data.token);
     if (!citizen) return { ok: true };
     await supabaseAdmin.from("device_tokens").delete().eq("citizen_id", data.id);
+    await supabaseAdmin.from("complaints").delete().eq("citizen_id", data.id);
     await supabaseAdmin.from("citizens").delete().eq("id", data.id);
     return { ok: true };
   });

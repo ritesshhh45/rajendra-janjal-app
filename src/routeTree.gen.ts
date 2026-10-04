@@ -14,12 +14,13 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as HomeRouteImport } from './routes/home'
-import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SchemesRouteImport } from './routes/schemes'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as SchemesIdRouteImport } from './routes/schemes_.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,11 +48,6 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -72,9 +68,19 @@ const SchemesRoute = SchemesRouteImport.update({
   path: '/schemes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SchemesIdRoute = SchemesIdRouteImport.update({
@@ -89,12 +95,13 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/home': typeof HomeRoute
-  '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/schemes': typeof SchemesRoute
+  '/services': typeof ServicesRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
   '/schemes/$id': typeof SchemesIdRoute
 }
 export interface FileRoutesByTo {
@@ -103,12 +110,13 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/home': typeof HomeRoute
-  '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/schemes': typeof SchemesRoute
+  '/services': typeof ServicesRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
   '/schemes/$id': typeof SchemesIdRoute
 }
 export interface FileRoutesById {
@@ -118,12 +126,13 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/gallery': typeof GalleryRoute
   '/home': typeof HomeRoute
-  '/notifications': typeof NotificationsRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/schemes': typeof SchemesRoute
+  '/services': typeof ServicesRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
   '/schemes_/$id': typeof SchemesIdRoute
 }
 export interface FileRouteTypes {
@@ -134,12 +143,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/gallery'
     | '/home'
-    | '/notifications'
     | '/privacy'
     | '/profile'
     | '/register'
     | '/schemes'
+    | '/services'
     | '/terms'
+    | '/updates'
     | '/schemes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,12 +158,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/gallery'
     | '/home'
-    | '/notifications'
     | '/privacy'
     | '/profile'
     | '/register'
     | '/schemes'
+    | '/services'
     | '/terms'
+    | '/updates'
     | '/schemes/$id'
   id:
     | '__root__'
@@ -162,12 +173,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/gallery'
     | '/home'
-    | '/notifications'
     | '/privacy'
     | '/profile'
     | '/register'
     | '/schemes'
+    | '/services'
     | '/terms'
+    | '/updates'
     | '/schemes_/$id'
   fileRoutesById: FileRoutesById
 }
@@ -177,12 +189,13 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   GalleryRoute: typeof GalleryRoute
   HomeRoute: typeof HomeRoute
-  NotificationsRoute: typeof NotificationsRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   SchemesRoute: typeof SchemesRoute
+  ServicesRoute: typeof ServicesRoute
   TermsRoute: typeof TermsRoute
+  UpdatesRoute: typeof UpdatesRoute
   SchemesIdRoute: typeof SchemesIdRoute
 }
 
@@ -223,13 +236,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -258,11 +264,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchemesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/schemes_/$id': {
@@ -281,12 +301,13 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   GalleryRoute: GalleryRoute,
   HomeRoute: HomeRoute,
-  NotificationsRoute: NotificationsRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   SchemesRoute: SchemesRoute,
+  ServicesRoute: ServicesRoute,
   TermsRoute: TermsRoute,
+  UpdatesRoute: UpdatesRoute,
   SchemesIdRoute: SchemesIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -73,7 +73,7 @@ function Register() {
       <div className="relative h-[50vh] min-h-[320px] w-full overflow-hidden">
         <img
           src={data?.leader_photo_url ?? fallbacks.leader}
-          alt={data?.leader_name ?? "Rajendra Janjal"}
+          alt="Rajendra Janjal"
           className="h-full w-full object-cover object-top"
         />
         <div className="absolute inset-0 bg-fade" />
@@ -81,8 +81,8 @@ function Register() {
       </div>
       <form onSubmit={submit} className="relative -mt-10 space-y-4 px-5 pb-10">
         <div className="animate-rise">
-          <h1 className="font-display text-3xl font-bold leading-tight">{t("welcome")}</h1>
-          <p className="mt-1 text-muted-foreground">{t("welcomeSub")}</p>
+          <h1 className="font-display text-3xl font-extrabold leading-tight text-foreground">{t("welcome")}</h1>
+          <p className="mt-1 font-medium text-foreground/75">{t("welcomeSub")}</p>
         </div>
         <Field label={t("fullName")} error={errors["name"]}>
           <Input className="h-12 text-base" autoComplete="name" {...field("name")} />

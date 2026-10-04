@@ -2,10 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FileText, Search, ChevronRight } from "lucide-react";
-import { MobileShell, EmptyState } from "@/components/app/MobileShell";
+import { MobileShell, EmptyState, ErrorState } from "@/components/app/MobileShell";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { schemesQuery } from "@/lib/content";
+import { schemesQuery, useL } from "@/lib/content";
+import { DbIcon } from "@/components/app/Icon";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/schemes")({
@@ -21,11 +22,12 @@ export const Route = createFileRoute("/schemes")({
 });
 
 function Schemes() {
-  const { t, lang } = useI18n();
-  const { data, isLoading } = useQuery(schemesQuery);
+  const { t } = useI18n();
+  const L = useL();
+  const { data, isLoading, isError } = useQuery(schemesQuery);
   const [q, setQ] = useState("");
   const list = (data ?? []).filter((s) =>
-    `${s.title_en} ${s.title_mr} ${s.description ?? ""}`.toLowerCase().includes(q.toLowerCase()),
+    `${s.title_en} ${s.title_mr} ${s.description_mr ?? ""} ${s.description_en ?? ""}`.toLowerCase().includes(q.toLowerCase()),
   );
 
   return (
@@ -36,24 +38,25 @@ function Schemes() {
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} className="h-12 pl-10 text-base" />
         </div>
         {isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
-        {!isLoading && list.length === 0 && <EmptyState icon={FileText} text={t("empty")} />}
+        {isError && <ErrorState />}
+        {!isLoading && !isError && list.length === 0 && <EmptyState icon={FileText} text={t("empty")} />}
         {list.map((s) => (
           <Link
             key={s.id}
             to="/schemes/$id"
             params={{ id: s.id }}
-            className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-card active:scale-[0.99]"
+            className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card active:scale-[0.99]"
           >
             {s.image_url ? (
               <img src={s.image_url} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
             ) : (
               <div className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
-                <FileText className="h-7 w-7" />
+                <DbIcon name={s.icon} fallback={FileText} className="h-7 w-7" />
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-display font-semibold leading-snug">{lang === "mr" ? s.title_mr : s.title_en}</p>
-              <p className="line-clamp-2 text-sm text-muted-foreground">{s.description}</p>
+              <p className="font-display font-semibold leading-snug">{L(s.title_mr, s.title_en)}</p>
+              <p className="line-clamp-2 text-sm text-muted-foreground">{L(s.description_mr, s.description_en)}</p>
             </div>
             <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
           </Link>
