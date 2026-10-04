@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { MapPin, Phone } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { MobileShell } from "@/components/app/MobileShell";
-import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { LeaderCard } from "@/components/app/LeaderCard";
+import { useSettings } from "@/lib/content";
 
-// Placeholder contact details — replace with the real ward office number.
-const OFFICE_PHONE = "+910000000000";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -21,16 +20,17 @@ export const Route = createFileRoute("/contact")({
 
 function Contact() {
   const { t } = useI18n();
+  const { data: s } = useSettings();
   return (
     <MobileShell title={t("contact")} back>
       <div className="space-y-4 p-5">
         <div className="flex gap-3 rounded-2xl bg-card p-4 shadow-card">
           <MapPin className="h-6 w-6 shrink-0 text-primary" />
-          <p>{t("officeAddress")}</p>
+          <p>{s?.office_address || t("officeAddress")}</p>
         </div>
-        <Button asChild variant="saffron" size="xl" className="w-full">
-          <a href={`tel:${OFFICE_PHONE}`}><Phone /> {t("call")}</a>
-        </Button>
+      </div>
+      <LeaderCard />
+      <div>
       </div>
     </MobileShell>
   );
