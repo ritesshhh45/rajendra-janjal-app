@@ -9,7 +9,7 @@ const map: Record<string, LucideIcon> = {
 };
 
 /** Renders an icon stored by name in the database (falls back to a generic one). */
-export function DbIcon({ name, fallback = Wrench, className }: { name?: string | null; fallback?: LucideIcon; className?: string }) {
+export function DbIcon({ name, fallback = Wrench, className }: { name?: string | null | undefined; fallback?: LucideIcon; className?: string }) {
   const I = (name && map[name]) || fallback;
   return <I className={className} />;
 }
