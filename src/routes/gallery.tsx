@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Images, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { MobileShell, EmptyState } from "@/components/app/MobileShell";
 import { Skeleton } from "@/components/ui/skeleton";
-import { galleryQuery } from "@/lib/content";
+import { galleryQuery, useL } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/gallery")({
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/gallery")({
 
 function Gallery() {
   const { t } = useI18n();
+  const L = useL();
   const { data, isLoading } = useQuery(galleryQuery);
   const [idx, setIdx] = useState<number | null>(null);
   const touchX = useRef(0);
@@ -28,12 +29,12 @@ function Gallery() {
   const go = (d: number) => setIdx((i) => (i === null ? i : (i + d + items.length) % items.length));
 
   return (
-    <MobileShell title={t("gallery")}>
+    <MobileShell title={t("photos")} back>
       <div className="grid grid-cols-3 gap-1 p-1">
         {isLoading && Array.from({ length: 9 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-none" />)}
         {items.map((g, i) => (
           <button key={g.id} onClick={() => setIdx(i)} className="aspect-square overflow-hidden">
-            <img src={g.image_url} alt={g.caption ?? ""} loading="lazy" className="h-full w-full object-cover" />
+            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} loading="lazy" className="h-full w-full object-cover" />
           </button>
         ))}
       </div>
@@ -62,7 +63,7 @@ function Gallery() {
               <ChevronRight className="h-8 w-8" />
             </button>
           </div>
-          <p className="p-5 text-center text-background">{g.caption}</p>
+          <p className="p-5 text-center text-background">{L(g.caption_mr, g.caption_en)}</p>
         </div>
       ); })()}
     </MobileShell>
