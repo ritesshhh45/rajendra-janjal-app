@@ -1,9 +1,11 @@
 # Digital Ward roadmap
 
-- [x] Splash, Register, Home (bilingual, saved on device)
-- [x] Schemes, Gallery, Notifications, Profile (edit/delete), About, Contact, Privacy, Terms
-- [ ] Admin panel (/admin): dashboard, send notification, history, gallery, schemes, citizens + CSV, settings uploads
-- [ ] Image storage for admin uploads — blocked: workspace blocks public file storage (needs admin to allow in Settings → Privacy & Security)
-- [ ] Push notifications (Capacitor service + send endpoint) — needs Firebase service account (FCM_SERVICE_ACCOUNT)
+- [x] Fix greeting, endless loading, register heading contrast
+- [x] New theme (cream/saffron/brown), Shiv Sena logo, Ward No. 22
+- [x] Two-step splash, new Home, Services + complaints via WhatsApp, Updates, Schemes, Profile (complaints, photos, about, contact)
+- [x] Sample data: categories, updates, works, schemes, gallery
+- [ ] Admin panel (/admin): login + approvals, Settings, Updates, Works, Schemes, Categories, Citizens/Complaints, Notices, Gallery, Admins
+- [ ] Image uploads in admin — blocked: workspace blocks public file storage (admin must allow in Settings → Privacy & Security)
+- [ ] Push notifications + "Send to all" — needs Firebase service account (FCM_SERVICE_ACCOUNT)
 - [ ] Daily birthday wishes at 8:00 AM IST
-- [ ] Real ward office phone number + address
+- [ ] Office phone + WhatsApp number — waiting on user (Call/WhatsApp buttons disabled until set)
