@@ -96,6 +96,7 @@ export const deleteMe = createServerFn({ method: "POST" })
     const { supabaseAdmin, citizen } = await loadCitizen(data.id, data.token);
     if (!citizen) return { ok: true };
     await supabaseAdmin.from("device_tokens").delete().eq("citizen_id", data.id);
+    await supabaseAdmin.from("complaints").delete().eq("citizen_id", data.id);
     await supabaseAdmin.from("citizens").delete().eq("id", data.id);
     return { ok: true };
   });
