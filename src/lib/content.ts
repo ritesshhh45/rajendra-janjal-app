@@ -53,21 +53,25 @@ export const settingsQuery = queryOptions({
 });
 export type Settings = Awaited<ReturnType<typeof settingsQuery.queryFn & {}>>;
 
-/** Settings with live updates when the admin changes them. */
-export function useSettings() {
+export const useSettings = () => useQuery(settingsQuery);
+
+/** Mount once (root): refreshes settings and updates live when the admin changes them. */
+export function useLiveContent() {
   const qc = useQueryClient();
   useEffect(() => {
     const ch = supabase
-      .channel("app_settings_live")
+      .channel(`live-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "app_settings" }, () =>
         qc.invalidateQueries({ queryKey: ["settings"] }),
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "updates" }, () =>
+        qc.invalidateQueries({ queryKey: ["updates"] }),
       )
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
   }, [qc]);
-  return useQuery(settingsQuery);
 }
 
 export const waLink = (num: string, text = "") =>
