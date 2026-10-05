@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { settingsQuery, fallbacks } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useSession, getDeviceId } from "@/lib/session";
-import { registerCitizen } from "@/lib/citizen";
+import { registerCitizen, CitizenError } from "@/lib/citizen";
 import { LangToggle } from "@/components/app/LangToggle";
 
 export const Route = createFileRoute("/register")({
