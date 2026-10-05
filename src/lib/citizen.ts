@@ -69,3 +69,7 @@ export async function deleteMe({ data }: { data: Auth }) {
   await call("deleteMe", supabase.rpc("citizen_delete", { _id: data.id, _token: data.token }));
   return { ok: true };
 }
+
+if (typeof window !== "undefined" && (!import.meta.env["VITE_SUPABASE_URL"] || !import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"])) {
+  console.error("[config] VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY is missing from this build.");
+}
