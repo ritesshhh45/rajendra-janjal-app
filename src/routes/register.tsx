@@ -54,8 +54,14 @@ function Register() {
       const res = await register({ data: { ...form, device_id: getDeviceId() } });
       setSession({ id: res.id, token: res.token });
       navigate({ to: "/home", replace: true });
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      const kind = err instanceof CitizenError ? err.kind : "other";
+      toast.error(
+        kind === "network" ? t("errNetwork")
+        : kind === "permission" ? t("errPermission")
+        : kind === "mobile" ? t("errMobile")
+        : (err as Error)?.message || t("loadError"),
+      );
     } finally {
       setBusy(false);
     }
