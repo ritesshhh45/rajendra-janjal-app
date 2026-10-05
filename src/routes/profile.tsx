@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronRight, Shield, ScrollText, Trash2, Images, UserRound, Phone, ClipboardList } from "lucide-react";
@@ -21,7 +20,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { useMe } from "@/lib/use-me";
-import { updateMe, deleteMe, myComplaints } from "@/lib/citizen.functions";
+import { updateMe, deleteMe, myComplaints } from "@/lib/citizen";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -41,9 +40,9 @@ function Profile() {
   const { data: me, isLoading } = useMe();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const update = useServerFn(updateMe);
-  const del = useServerFn(deleteMe);
-  const listComplaints = useServerFn(myComplaints);
+  const update = updateMe;
+  const del = deleteMe;
+  const listComplaints = myComplaints;
   const L = useL();
   const complaints = useQuery({ queryKey: ["complaints", session?.id], queryFn: () => listComplaints({ data: session! }), enabled: !!session });
   const gallery = useQuery(galleryQuery);
