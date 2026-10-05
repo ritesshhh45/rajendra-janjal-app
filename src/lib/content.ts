@@ -2,16 +2,12 @@ import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
-import leaderOrange from "@/assets/images_11.jpg.asset.json";
-import leaderWhite from "@/assets/images_13.jpg.asset.json";
-import leaderCap from "@/assets/images_9.jpg.asset.json";
-import logo from "@/assets/shivsena-logo.webp.asset.json";
-
+// Images live in /public/images and are served from the site root on any host.
 export const fallbacks = {
-  leader: leaderOrange.url,
-  splash: leaderWhite.url,
-  header: leaderCap.url,
-  logo: logo.url,
+  leader: "/images/leader-saffron.jpg",
+  splash: "/images/leader-white.jpg",
+  header: "/images/leader-cap-side.jpg",
+  logo: "/images/shiv-sena-logo.webp",
 };
 
 /** Pick the Marathi or English variant of a bilingual value. */
