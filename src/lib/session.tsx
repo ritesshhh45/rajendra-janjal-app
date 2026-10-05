@@ -21,19 +21,28 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
   const setSession = (s: CitizenSession | null) => {
     set(s);
-    if (s) localStorage.setItem(KEY, JSON.stringify(s));
-    else localStorage.removeItem(KEY);
+    try {
+      if (s) localStorage.setItem(KEY, JSON.stringify(s));
+      else localStorage.removeItem(KEY);
+    } catch {
+      /* storage blocked: session lives in memory for this visit */
+    }
   };
   return <Ctx.Provider value={{ session, ready, setSession }}>{children}</Ctx.Provider>;
 }
 
 export const useSession = () => useContext(Ctx);
 
+let memDevice: string | null = null;
 export function getDeviceId() {
-  let id = localStorage.getItem("dw_device");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("dw_device", id);
+  try {
+    let id = localStorage.getItem("dw_device");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("dw_device", id);
+    }
+    return id;
+  } catch {
+    return (memDevice ??= crypto.randomUUID());
   }
-  return id;
 }

@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -12,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { settingsQuery, fallbacks } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useSession, getDeviceId } from "@/lib/session";
-import { registerCitizen } from "@/lib/citizen.functions";
+import { registerCitizen, CitizenError } from "@/lib/citizen";
 import { LangToggle } from "@/components/app/LangToggle";
 
 export const Route = createFileRoute("/register")({
@@ -32,7 +31,7 @@ function Register() {
   const { data } = useQuery(settingsQuery);
   const { session, ready, setSession } = useSession();
   const navigate = useNavigate();
-  const register = useServerFn(registerCitizen);
+  const register = registerCitizen;
   const [form, setForm] = useState({ name: "", mobile: "", address: "", dob: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -55,8 +54,14 @@ function Register() {
       const res = await register({ data: { ...form, device_id: getDeviceId() } });
       setSession({ id: res.id, token: res.token });
       navigate({ to: "/home", replace: true });
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      const kind = err instanceof CitizenError ? err.kind : "other";
+      toast.error(
+        kind === "network" ? t("errNetwork")
+        : kind === "permission" ? t("errPermission")
+        : kind === "mobile" ? t("errMobile")
+        : (err as Error)?.message || t("loadError"),
+      );
     } finally {
       setBusy(false);
     }

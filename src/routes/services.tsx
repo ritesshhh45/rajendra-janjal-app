@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { LayoutGrid, MessageCircle } from "lucide-react";
@@ -14,7 +13,7 @@ import { categoriesQuery, useL, useSettings, waLink } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { useMe } from "@/lib/use-me";
-import { submitComplaint } from "@/lib/citizen.functions";
+import { submitComplaint } from "@/lib/citizen";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -36,7 +35,7 @@ function Services() {
   const { data: me } = useMe();
   const { session } = useSession();
   const qc = useQueryClient();
-  const submit = useServerFn(submitComplaint);
+  const submit = submitComplaint;
   const [cat, setCat] = useState<NonNullable<typeof data>[number] | null>(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);

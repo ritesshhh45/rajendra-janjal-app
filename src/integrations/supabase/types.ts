@@ -470,7 +470,60 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      citizen_complaints: {
+        Args: { _id: string; _token: string }
+        Returns: {
+          created_at: string
+          id: string
+          message: string
+          name_en: string
+          name_mr: string
+          status: string
+        }[]
+      }
+      citizen_delete: {
+        Args: { _id: string; _token: string }
+        Returns: undefined
+      }
+      citizen_me: {
+        Args: { _id: string; _token: string }
+        Returns: {
+          address: string
+          created_at: string
+          dob: string
+          id: string
+          mobile: string
+          name: string
+        }[]
+      }
+      citizen_submit_complaint: {
+        Args: {
+          _category_id: string
+          _id: string
+          _message: string
+          _token: string
+        }
+        Returns: undefined
+      }
+      citizen_update: {
+        Args: { _address: string; _id: string; _name: string; _token: string }
+        Returns: undefined
+      }
       is_admin: { Args: { _uid: string }; Returns: boolean }
+      register_citizen: {
+        Args: {
+          _address: string
+          _device_id?: string
+          _dob: string
+          _mobile: string
+          _name: string
+        }
+        Returns: {
+          existing: boolean
+          id: string
+          token: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

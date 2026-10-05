@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useSession } from "@/lib/session";
-import { getMe } from "@/lib/citizen.functions";
+import { getMe } from "@/lib/citizen";
 
 export function useMe() {
   const { session } = useSession();
-  const fn = useServerFn(getMe);
+  const fn = getMe;
   return useQuery({
     queryKey: ["me", session?.id],
     queryFn: () => fn({ data: session! }),
