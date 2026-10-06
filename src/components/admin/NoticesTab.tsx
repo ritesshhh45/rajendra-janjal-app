@@ -31,7 +31,7 @@ export function NoticesTab() {
   });
 
   const send = async () => {
-    if (!title.trim() || !message.trim()) return toast.error("Title and message are required");
+    if (!title.trim() || !message.trim()) { toast.error("Title and message are required"); return; }
     setBusy(true); setResult(null);
     try {
       const r = await sendNotification({ title, message, image_url: image });
