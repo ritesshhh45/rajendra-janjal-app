@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { registerPush } from "@/lib/push";
 
 export type CitizenSession = { id: string; token: string };
 const KEY = "dw_citizen";
@@ -19,6 +20,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     } catch {}
     setReady(true);
   }, []);
+  useEffect(() => {
+    if (session) void registerPush(session);
+  }, [session?.id]);
   const setSession = (s: CitizenSession | null) => {
     set(s);
     try {

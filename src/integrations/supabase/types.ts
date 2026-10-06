@@ -509,7 +509,24 @@ export type Database = {
         Args: { _address: string; _id: string; _name: string; _token: string }
         Returns: undefined
       }
+      claim_admin: {
+        Args: never
+        Returns: {
+          approved: boolean
+          created_at: string
+          email: string | null
+          is_primary: boolean
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admins"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       is_admin: { Args: { _uid: string }; Returns: boolean }
+      is_primary_admin: { Args: { _uid: string }; Returns: boolean }
       register_citizen: {
         Args: {
           _address: string
@@ -523,6 +540,15 @@ export type Database = {
           id: string
           token: string
         }[]
+      }
+      register_device: {
+        Args: {
+          _fcm_token: string
+          _id: string
+          _platform: string
+          _token: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
