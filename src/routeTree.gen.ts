@@ -22,6 +22,8 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as SchemesIdRouteImport } from './routes/schemes_.$id'
+import { Route as ApiPublicSendNotificationRouteImport } from './routes/api/public/send-notification'
+import { Route as ApiPublicHooksBirthdayWishesRouteImport } from './routes/api/public/hooks/birthday-wishes'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +90,18 @@ const SchemesIdRoute = SchemesIdRouteImport.update({
   path: '/schemes/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSendNotificationRoute =
+  ApiPublicSendNotificationRouteImport.update({
+    id: '/api/public/send-notification',
+    path: '/api/public/send-notification',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksBirthdayWishesRoute =
+  ApiPublicHooksBirthdayWishesRouteImport.update({
+    id: '/api/public/hooks/birthday-wishes',
+    path: '/api/public/hooks/birthday-wishes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +117,8 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/updates': typeof UpdatesRoute
   '/schemes/$id': typeof SchemesIdRoute
+  '/api/public/send-notification': typeof ApiPublicSendNotificationRoute
+  '/api/public/hooks/birthday-wishes': typeof ApiPublicHooksBirthdayWishesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +134,8 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/updates': typeof UpdatesRoute
   '/schemes/$id': typeof SchemesIdRoute
+  '/api/public/send-notification': typeof ApiPublicSendNotificationRoute
+  '/api/public/hooks/birthday-wishes': typeof ApiPublicHooksBirthdayWishesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +152,8 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/updates': typeof UpdatesRoute
   '/schemes_/$id': typeof SchemesIdRoute
+  '/api/public/send-notification': typeof ApiPublicSendNotificationRoute
+  '/api/public/hooks/birthday-wishes': typeof ApiPublicHooksBirthdayWishesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +171,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/updates'
     | '/schemes/$id'
+    | '/api/public/send-notification'
+    | '/api/public/hooks/birthday-wishes'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +188,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/updates'
     | '/schemes/$id'
+    | '/api/public/send-notification'
+    | '/api/public/hooks/birthday-wishes'
   id:
     | '__root__'
     | '/'
@@ -181,6 +205,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/updates'
     | '/schemes_/$id'
+    | '/api/public/send-notification'
+    | '/api/public/hooks/birthday-wishes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +223,8 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UpdatesRoute: typeof UpdatesRoute
   SchemesIdRoute: typeof SchemesIdRoute
+  ApiPublicSendNotificationRoute: typeof ApiPublicSendNotificationRoute
+  ApiPublicHooksBirthdayWishesRoute: typeof ApiPublicHooksBirthdayWishesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +320,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchemesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/send-notification': {
+      id: '/api/public/send-notification'
+      path: '/api/public/send-notification'
+      fullPath: '/api/public/send-notification'
+      preLoaderRoute: typeof ApiPublicSendNotificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/birthday-wishes': {
+      id: '/api/public/hooks/birthday-wishes'
+      path: '/api/public/hooks/birthday-wishes'
+      fullPath: '/api/public/hooks/birthday-wishes'
+      preLoaderRoute: typeof ApiPublicHooksBirthdayWishesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +351,8 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UpdatesRoute: UpdatesRoute,
   SchemesIdRoute: SchemesIdRoute,
+  ApiPublicSendNotificationRoute: ApiPublicSendNotificationRoute,
+  ApiPublicHooksBirthdayWishesRoute: ApiPublicHooksBirthdayWishesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
