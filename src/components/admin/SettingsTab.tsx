@@ -42,7 +42,7 @@ export function SettingsTab() {
     const { id: _i, updated_at: _u, ...rest } = s;
     const { error } = await supabase.from("app_settings").update({ ...rest, updated_at: new Date().toISOString() } as never).eq("id", 1);
     setBusy(false);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Saved");
     qc.invalidateQueries({ queryKey: ["settings"] });
   };

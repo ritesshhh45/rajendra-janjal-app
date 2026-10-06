@@ -50,13 +50,13 @@ export function GalleryTab() {
   };
   const save = async (g: G) => {
     const { error } = await supabase.from("gallery").update(drafts[g.id] ?? {}).eq("id", g.id);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Saved"); setDrafts({ ...drafts, [g.id]: {} }); refresh();
   };
   const del = async (g: G) => {
     if (!confirm("Delete photo?")) return;
     const { error } = await supabase.from("gallery").delete().eq("id", g.id);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     await removeImage(g.image_url).catch(() => {});
     refresh();
   };
