@@ -16,9 +16,14 @@ import { I18nProvider } from "@/lib/i18n";
 import { SessionProvider } from "@/lib/session";
 import { Toaster } from "@/components/ui/sonner";
 import { useLiveContent } from "@/lib/content";
+import { hideNativeSplash } from "@/lib/push";
 
 function LiveContent() {
   useLiveContent();
+  useEffect(() => {
+    const id = requestAnimationFrame(() => void hideNativeSplash());
+    return () => cancelAnimationFrame(id);
+  }, []);
   return null;
 }
 

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import type { Database } from "@/integrations/supabase/types";
+import { readInbox } from "@/lib/push";
 import leaderRegister from "@/assets/leader-register.webp";
 import leaderHeader from "@/assets/leader-header.webp";
 import leaderWhite from "@/assets/leader-white.webp";
@@ -134,12 +135,13 @@ export const categoriesQuery = list("categories", () =>
 
 const SEEN = "dw_seen_at";
 export function markSeen() {
-  localStorage.setItem(SEEN, new Date().toISOString());
+  try { localStorage.setItem(SEEN, new Date().toISOString()); } catch { /* blocked */ }
 }
 export function useUnread() {
   const u = useQuery(updatesQuery).data ?? [];
   const n = useQuery(noticesQuery).data ?? [];
   if (typeof window === "undefined") return 0;
-  const seen = localStorage.getItem(SEEN) ?? "1970";
-  return [...u, ...n].filter((x) => x.created_at > seen).length;
+  let seen = "1970";
+  try { seen = localStorage.getItem(SEEN) ?? "1970"; } catch { /* blocked */ }
+  return [...u, ...n, ...readInbox()].filter((x) => x.created_at > seen).length;
 }
