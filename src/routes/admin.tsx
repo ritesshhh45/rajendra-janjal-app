@@ -58,7 +58,7 @@ function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const redirect = typeof window !== "undefined" ? `${window.location.origin}/admin` : undefined;
+  const redirect = typeof window !== "undefined" ? `${window.location.origin}/admin` : "/admin";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

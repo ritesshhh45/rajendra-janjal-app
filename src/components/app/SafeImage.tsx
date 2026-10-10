@@ -6,7 +6,7 @@ import { useEffect, useState, type ImgHTMLAttributes } from "react";
  */
 export function SafeImage({
   src, fallback, priority, width, height, className, alt = "", ...rest
-}: ImgHTMLAttributes<HTMLImageElement> & { src?: string | null; fallback?: string; priority?: boolean; width?: number; height?: number }) {
+}: ImgHTMLAttributes<HTMLImageElement> & { src?: string | null | undefined; fallback?: string | undefined; priority?: boolean | undefined; width?: number | undefined; height?: number | undefined }) {
   const remote = src && src !== fallback ? src : null;
   const [shown, setShown] = useState<string | undefined>(fallback ?? remote ?? undefined);
   const [loaded, setLoaded] = useState(!!fallback);
