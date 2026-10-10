@@ -1,6 +1,7 @@
 import { Phone, MessageCircle, MapPin } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { useL, useSettings, waLink, mapsLink } from "@/lib/content";
+import { useL, useSettings, waLink, mapsLink, fallbacks } from "@/lib/content";
+import { SafeImage } from "@/components/app/SafeImage";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function LeaderCard() {
@@ -13,7 +14,7 @@ export function LeaderCard() {
     <div className="mx-5 rounded-3xl bg-card p-4 shadow-card">
       <div className="flex items-center gap-4">
         <div className="shrink-0 rounded-full bg-gold-ring p-[3px]">
-          <img src={s.leader_photo_url} alt="" className="h-20 w-20 rounded-full border-2 border-card object-cover object-top" />
+          <SafeImage src={s.leader_photo_url} fallback={fallbacks.leader} width={80} height={80} className="h-20 w-20 rounded-full border-2 border-card object-cover object-top" />
         </div>
         <div className="min-w-0">
           <p className="font-display text-xl font-bold leading-tight">{L(s.name_mr, s.name_en)}</p>

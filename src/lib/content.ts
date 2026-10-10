@@ -2,6 +2,7 @@ import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import type { Database } from "@/integrations/supabase/types";
 import leaderRegister from "@/assets/leader-register.webp";
 import leaderHeader from "@/assets/leader-header.webp";
 import leaderWhite from "@/assets/leader-white.webp";
@@ -41,8 +42,8 @@ export const settingsQuery = queryOptions({
   staleTime: 60_000,
   retry: 1,
 });
-type SettingsRow = Partial<Record<string, string | number | null>> | null;
-function build(data: any) {
+type SettingsRow = Partial<Database["public"]["Tables"]["app_settings"]["Row"]> | null;
+function build(data: SettingsRow) {
     return {
       name_mr: data?.name_mr ?? "राजेंद्र जंजाळ",
       name_en: data?.name_en ?? "Rajendra Janjal",
@@ -68,7 +69,6 @@ function build(data: any) {
     };
 }
 export type Settings = ReturnType<typeof build>;
-void (null as unknown as SettingsRow);
 
 export const useSettings = () => useQuery(settingsQuery);
 
