@@ -95,7 +95,7 @@ function HomePage() {
         {works.data?.slice(0, 4).map((w) => (
           <div key={w.id} className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card">
             {w.photo_url ? (
-              <img src={w.photo_url} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
+              <img src={w.photo_url} alt="" loading="lazy" decoding="async" width={64} height={64} className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
             ) : (
               <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-secondary text-primary"><Hammer className="h-7 w-7" /></div>
             )}
@@ -136,7 +136,7 @@ function HomePage() {
         {gallery.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-28 shrink-0 rounded-2xl" />)}
         {gallery.data?.slice(0, 8).map((g) => (
           <Link key={g.id} to="/gallery" className="shrink-0">
-            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} className="h-28 w-28 rounded-2xl object-cover" loading="lazy" />
+            <img decoding="async" width={112} height={112} src={g.image_url} alt={L(g.caption_mr, g.caption_en)} className="h-28 w-28 rounded-2xl object-cover" loading="lazy" />
           </Link>
         ))}
       </div>

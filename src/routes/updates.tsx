@@ -44,7 +44,7 @@ function Updates() {
         {!loading && !u.isError && items.length === 0 && <EmptyState icon={Bell} text={t("empty")} />}
         {items.map((x) => (
           <article key={x.id} className={`overflow-hidden rounded-3xl bg-card shadow-card ${x.alert ? "ring-2 ring-primary" : ""}`}>
-            {x.image && <img src={x.image} alt="" className="w-full object-cover" />}
+            {x.image && <img src={x.image} alt="" loading="lazy" decoding="async" className="w-full object-cover" />}
             <div className="space-y-2 p-5">
               <div className="flex flex-wrap gap-2">
                 {x.alert && (
