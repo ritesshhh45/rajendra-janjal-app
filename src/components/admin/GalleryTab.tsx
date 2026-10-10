@@ -64,7 +64,7 @@ export function GalleryTab() {
   return (
     <div className="space-y-3">
       <input ref={ref} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
-      <Button variant="saffron" onClick={() => ref.current?.click()} disabled={busy}>{busy ? <Loader2 className="animate-spin" /> : <Upload />} Upload photos</Button>
+      <Button variant="saffron" onClick={() => ref.current?.click()} disabled={busy}>{busy ? <Loader2 className="animate-spin" /> : <Upload />} {busy ? "Uploading…" : "Upload photos"}</Button>
       {q.isLoading && <Loader2 className="mx-auto animate-spin" />}
       {q.error && <p className="text-destructive">{errMsg(q.error)}</p>}
       {items.map((g, i) => {
