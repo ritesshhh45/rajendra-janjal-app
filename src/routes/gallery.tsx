@@ -34,7 +34,7 @@ function Gallery() {
         {isLoading && Array.from({ length: 9 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-none" />)}
         {items.map((g, i) => (
           <button key={g.id} onClick={() => setIdx(i)} className="aspect-square overflow-hidden">
-            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} loading="lazy" className="h-full w-full object-cover" />
+            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} loading="lazy" decoding="async" width={200} height={200} className="h-full w-full bg-muted object-cover" />
           </button>
         ))}
       </div>

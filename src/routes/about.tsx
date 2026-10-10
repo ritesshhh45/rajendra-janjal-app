@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MobileShell } from "@/components/app/MobileShell";
-import { useSettings, useL } from "@/lib/content";
+import { useSettings, useL, fallbacks } from "@/lib/content";
+import { SafeImage } from "@/components/app/SafeImage";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/about")({
@@ -22,7 +23,7 @@ function About() {
   return (
     <MobileShell title={t("about")} back>
       <div className="p-5">
-        <img src={s?.leader_photo_url} alt="" className="aspect-square w-full rounded-3xl object-cover object-top shadow-card" />
+        <SafeImage src={s?.leader_photo_url} fallback={fallbacks.leader} width={400} height={400} className="aspect-square w-full rounded-3xl object-cover object-top shadow-card" />
         <h2 className="mt-5 font-display text-2xl font-bold">{s && L(s.name_mr, s.name_en)}</h2>
         <p className="font-semibold text-primary">{s && `${L(s.designation_mr, s.designation_en)} · ${L(s.ward_mr, s.ward_en)}`}</p>
         {s && <p className="mt-2 font-semibold italic text-success">{L(s.slogan_mr, s.slogan_en)}</p>}

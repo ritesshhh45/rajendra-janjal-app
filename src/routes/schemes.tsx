@@ -48,7 +48,7 @@ function Schemes() {
             className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card active:scale-[0.99]"
           >
             {s.image_url ? (
-              <img src={s.image_url} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+              <img src={s.image_url} alt="" loading="lazy" decoding="async" width={64} height={64} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
             ) : (
               <div className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
                 <DbIcon name={s.icon} fallback={FileText} className="h-7 w-7" />

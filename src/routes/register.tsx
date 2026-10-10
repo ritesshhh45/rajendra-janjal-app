@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { settingsQuery, fallbacks } from "@/lib/content";
+import { SafeImage } from "@/components/app/SafeImage";
+import leaderRegister from "@/assets/leader-register.webp";
 import { useI18n } from "@/lib/i18n";
 import { useSession, getDeviceId } from "@/lib/session";
 import { registerCitizen, CitizenError } from "@/lib/citizen";
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/register")({
       { property: "og:title", content: "Register — Digital Ward" },
       { property: "og:description", content: "Join Digital Ward to receive ward updates." },
     ],
+    links: [{ rel: "preload", as: "image", href: leaderRegister, fetchPriority: "high" }],
   }),
   component: Register,
 });
@@ -77,9 +80,13 @@ function Register() {
     <PhoneFrame>
       <div className="min-h-dvh bg-splash-cream">
       <div className="relative h-[50vh] min-h-[320px] w-full overflow-hidden">
-        <img
-          src={data?.leader_photo_url ?? fallbacks.leader}
+        <SafeImage
+          priority
+          src={data?.leader_photo_url}
+          fallback={fallbacks.leader}
           alt="Rajendra Janjal"
+          width={900}
+          height={900}
           className="h-full w-full object-cover object-top"
         />
         <div className="absolute inset-0 bg-fade" />

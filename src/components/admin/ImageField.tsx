@@ -19,7 +19,7 @@ export function ImageField({ value, onChange, folder }: { value: string | null |
       </div>
       <input ref={ref} type="file" accept="image/*" hidden onChange={(e) => pick(e.target.files?.[0])} />
       <Button type="button" variant="outline" onClick={() => ref.current?.click()} disabled={busy}>
-        {busy ? <Loader2 className="animate-spin" /> : <Upload />} Upload
+        {busy ? <Loader2 className="animate-spin" /> : <Upload />} {busy ? "Uploading…" : "Upload"}
       </Button>
       {value && (
         <Button type="button" variant="ghost" onClick={async () => { await removeImage(value).catch(() => {}); onChange(null); }}>

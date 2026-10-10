@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { readInbox, INBOX_EVENT, type InboxItem } from "@/lib/push";
 import { Bell, AlertTriangle } from "lucide-react";
 import { MobileShell, EmptyState, ErrorState } from "@/components/app/MobileShell";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +27,13 @@ function Updates() {
   const L = useL();
   const u = useQuery(updatesQuery);
   const n = useQuery(noticesQuery);
+  const [inbox, setInbox] = useState<InboxItem[]>([]);
+  useEffect(() => {
+    const load = () => setInbox(readInbox());
+    load();
+    window.addEventListener(INBOX_EVENT, load);
+    return () => window.removeEventListener(INBOX_EVENT, load);
+  }, []);
   useEffect(() => {
     if (u.data && n.data) markSeen();
   }, [u.data, n.data]);
@@ -33,6 +41,9 @@ function Updates() {
   const items: Item[] = [
     ...(u.data ?? []).map((x) => ({ id: x.id, created_at: x.created_at, chip: L(x.category_mr, x.category_en), title: L(x.title_mr, x.title_en), body: L(x.body_mr, x.body_en), alert: x.is_alert })),
     ...(n.data ?? []).map((x) => ({ id: x.id, created_at: x.created_at, chip: t("notice"), title: x.title, body: x.message, alert: false, image: x.image_url })),
+    ...inbox
+      .filter((x) => !(n.data ?? []).some((d) => d.title === x.title && d.message === x.body))
+      .map((x) => ({ id: `push-${x.id}`, created_at: x.created_at, chip: t("notice"), title: x.title, body: x.body, alert: false, image: x.image ?? null })),
   ].sort((a, b) => b.created_at.localeCompare(a.created_at));
   const loading = u.isLoading || n.isLoading;
 
@@ -44,7 +55,7 @@ function Updates() {
         {!loading && !u.isError && items.length === 0 && <EmptyState icon={Bell} text={t("empty")} />}
         {items.map((x) => (
           <article key={x.id} className={`overflow-hidden rounded-3xl bg-card shadow-card ${x.alert ? "ring-2 ring-primary" : ""}`}>
-            {x.image && <img src={x.image} alt="" className="w-full object-cover" />}
+            {x.image && <img src={x.image} alt="" loading="lazy" decoding="async" className="w-full object-cover" />}
             <div className="space-y-2 p-5">
               <div className="flex flex-wrap gap-2">
                 {x.alert && (

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/session";
-import shivSenaLogo from "@/assets/shiv-sena-logo.webp";
+import shivSenaLogo from "@/assets/shiv-sena-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,9 +23,15 @@ function Splash() {
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setFinished(true), 2100);
+    const timer = setTimeout(() => setFinished(true), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Safety: never stay on the splash longer than 2s.
+  useEffect(() => {
+    const t = setTimeout(() => navigate({ to: session ? "/home" : "/register", replace: true }), 2000);
+    return () => clearTimeout(t);
+  }, [navigate, session]);
 
   useEffect(() => {
     if (ready && finished) navigate({ to: session ? "/home" : "/register", replace: true });
@@ -33,7 +39,7 @@ function Splash() {
 
   return (
     <main className="grid h-dvh w-full place-items-center overflow-hidden bg-splash-cream">
-      <img src={shivSenaLogo} alt="Shiv Sena" className="animate-splash-logo block w-[180px] max-w-[50%] object-contain" />
+      <img src={shivSenaLogo} alt="Shiv Sena" className="animate-splash-logo block w-[160px] max-w-[50%] object-contain" />
     </main>
   );
 }

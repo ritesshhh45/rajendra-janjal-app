@@ -7,11 +7,26 @@ export const apiBase = () =>
     ? ""
     : PUBLISHED;
 
+/** Resize in the browser and convert to WebP so big phone photos never reach storage. */
+export async function compressImage(file: File, maxWidth: number): Promise<Blob> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.type === "image/svg+xml") return file;
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, maxWidth / bmp.width);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bmp.width * scale);
+  canvas.height = Math.round(bmp.height * scale);
+  canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  bmp.close();
+  const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/webp", 0.8));
+  return blob && blob.size < file.size ? blob : file;
+}
+
 /** Upload to the media bucket; returns a long-lived link usable by every citizen. */
 export async function uploadImage(file: File, folder: string) {
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const blob = await compressImage(file, folder === "gallery" ? 1280 : 1080);
+  const ext = blob.type === "image/webp" ? "webp" : (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type, upsert: false });
+  const { error } = await supabase.storage.from("media").upload(path, blob, { contentType: blob.type || file.type, upsert: false });
   if (error) throw error;
   const { data, error: e2 } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 365 * 20);
   if (e2 || !data) throw e2 ?? new Error("No link");

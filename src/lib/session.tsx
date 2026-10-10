@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { registerPush } from "@/lib/push";
+import { initPush } from "@/lib/push";
 
 export type CitizenSession = { id: string; token: string };
 const KEY = "dw_citizen";
@@ -20,9 +20,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     } catch {}
     setReady(true);
   }, []);
+  // Push setup runs well after the first screen, never during startup.
   useEffect(() => {
-    if (session) void registerPush(session);
-  }, [session?.id]);
+    if (!ready) return;
+    const t = setTimeout(() => void initPush(session), 3000);
+    return () => clearTimeout(t);
+  }, [ready, session?.id]);
   const setSession = (s: CitizenSession | null) => {
     set(s);
     try {

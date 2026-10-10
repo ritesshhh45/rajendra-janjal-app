@@ -2,13 +2,25 @@ import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
-// Images live in /public/images and are served from the site root on any host.
-export const fallbacks = {
-  leader: "/images/leader-saffron.jpg",
-  splash: "/images/leader-white.jpg",
-  header: "/images/leader-cap-side.jpg",
-  logo: "/images/shiv-sena-logo.webp",
-};
+import type { Database } from "@/integrations/supabase/types";
+import { readInbox } from "@/lib/push";
+import leaderRegister from "@/assets/leader-register.webp";
+import leaderHeader from "@/assets/leader-header.webp";
+import leaderWhite from "@/assets/leader-white.webp";
+import partyLogo from "@/assets/shiv-sena-logo.png";
+
+// Bundled defaults: load instantly, offline, on every host.
+export const fallbacks = { leader: leaderRegister, splash: leaderWhite, header: leaderHeader, logo: partyLogo };
+
+// Small stale-while-revalidate cache: show last data instantly, refresh in background.
+const CK = "dw_cache_";
+export function readCache<T>(key: string): T | undefined {
+  if (typeof window === "undefined") return undefined;
+  try { const v = localStorage.getItem(CK + key); return v ? (JSON.parse(v) as T) : undefined; } catch { return undefined; }
+}
+function writeCache(key: string, v: unknown) {
+  try { localStorage.setItem(CK + key, JSON.stringify(v)); } catch { /* full or blocked */ }
+}
 
 /** Pick the Marathi or English variant of a bilingual value. */
 export function useL() {
@@ -19,7 +31,20 @@ export function useL() {
 export const settingsQuery = queryOptions({
   queryKey: ["settings"],
   queryFn: async () => {
-    const { data } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
+    const { data, error } = await supabase.from("app_settings").select(
+      "name_mr,name_en,designation_mr,designation_en,ward_mr,ward_en,slogan_mr,slogan_en,tagline_mr,tagline_en,party_name_mr,party_name_en,office_address,office_phone,office_whatsapp,office_lat,office_lng,splash_photo_url,header_photo_url,leader_photo_url,party_logo_url",
+    ).eq("id", 1).maybeSingle();
+    if (error) { const c = readCache<ReturnType<typeof build>>("settings"); if (c) return c; }
+    const out = build(data);
+    writeCache("settings", out);
+    return out;
+  },
+  placeholderData: () => readCache("settings"),
+  staleTime: 60_000,
+  retry: 1,
+});
+type SettingsRow = Partial<Database["public"]["Tables"]["app_settings"]["Row"]> | null;
+function build(data: SettingsRow) {
     return {
       name_mr: data?.name_mr ?? "राजेंद्र जंजाळ",
       name_en: data?.name_en ?? "Rajendra Janjal",
@@ -43,11 +68,8 @@ export const settingsQuery = queryOptions({
       leader_photo_url: data?.leader_photo_url || fallbacks.leader,
       party_logo_url: data?.party_logo_url || fallbacks.logo,
     };
-  },
-  staleTime: 60_000,
-  retry: 1,
-});
-export type Settings = Awaited<ReturnType<typeof settingsQuery.queryFn & {}>>;
+}
+export type Settings = ReturnType<typeof build>;
 
 export const useSettings = () => useQuery(settingsQuery);
 
@@ -82,9 +104,15 @@ const list = <T,>(key: string, fn: () => PromiseLike<{ data: T[] | null; error: 
     queryKey: [key],
     queryFn: async () => {
       const { data, error } = await fn();
-      if (error) throw error;
+      if (error) {
+        const c = readCache<T[]>(key);
+        if (c) return c;
+        throw error;
+      }
+      writeCache(key, data ?? []);
       return data ?? [];
     },
+    placeholderData: () => readCache<T[]>(key),
     retry: 1,
   });
 
@@ -107,12 +135,13 @@ export const categoriesQuery = list("categories", () =>
 
 const SEEN = "dw_seen_at";
 export function markSeen() {
-  localStorage.setItem(SEEN, new Date().toISOString());
+  try { localStorage.setItem(SEEN, new Date().toISOString()); } catch { /* blocked */ }
 }
 export function useUnread() {
   const u = useQuery(updatesQuery).data ?? [];
   const n = useQuery(noticesQuery).data ?? [];
   if (typeof window === "undefined") return 0;
-  const seen = localStorage.getItem(SEEN) ?? "1970";
-  return [...u, ...n].filter((x) => x.created_at > seen).length;
+  let seen = "1970";
+  try { seen = localStorage.getItem(SEEN) ?? "1970"; } catch { /* blocked */ }
+  return [...u, ...n, ...readInbox()].filter((x) => x.created_at > seen).length;
 }

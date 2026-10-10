@@ -118,7 +118,7 @@ function Profile() {
           <div className="grid grid-cols-3 gap-1.5">
             {gallery.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="aspect-square rounded-xl" />)}
             {gallery.data?.slice(0, 6).map((g) => (
-              <Link key={g.id} to="/gallery"><img src={g.image_url} alt="" className="aspect-square w-full rounded-xl object-cover" loading="lazy" /></Link>
+              <Link key={g.id} to="/gallery"><img src={g.image_url} alt="" className="aspect-square w-full rounded-xl object-cover" loading="lazy" decoding="async" width={120} height={120} /></Link>
             ))}
           </div>
         </section>
