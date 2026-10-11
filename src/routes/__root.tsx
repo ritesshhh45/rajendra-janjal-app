@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
@@ -16,14 +15,11 @@ import { I18nProvider } from "@/lib/i18n";
 import { SessionProvider } from "@/lib/session";
 import { Toaster } from "@/components/ui/sonner";
 import { useLiveContent } from "@/lib/content";
-import { hideNativeSplash } from "@/lib/push";
+import { LaunchScreen } from "@/components/app/LaunchScreen";
+import shivSenaLogo from "@/assets/shiv-sena-logo.png";
 
 function LiveContent() {
   useLiveContent();
-  useEffect(() => {
-    const id = requestAnimationFrame(() => void hideNativeSplash());
-    return () => cancelAnimationFrame(id);
-  }, []);
   return null;
 }
 
@@ -102,6 +98,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "preload", as: "image", href: shivSenaLogo },
       {
         rel: "stylesheet",
         href: appCss,
@@ -124,7 +121,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body style={{ background: "#FFF9F0" }}>
+      <body className="bg-splash-cream">
         {children}
         <Scripts />
       </body>
@@ -141,7 +138,7 @@ function RootComponent() {
       <I18nProvider>
         <SessionProvider>
           <LiveContent />
-          <Outlet />
+          <LaunchScreen />
           <Toaster position="top-center" />
         </SessionProvider>
       </I18nProvider>
