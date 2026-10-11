@@ -24,7 +24,7 @@ export function LaunchScreen() {
     let frame = 0;
     // Do not hide the native screen until the bundled image is decoded and painted.
     const paint = async () => {
-      await logo.current?.decode().catch(() => {});
+      await logo.current?.decode?.().catch(() => {});
       if (cancelled) return;
       frame = requestAnimationFrame(() => {
         frame = requestAnimationFrame(() => {

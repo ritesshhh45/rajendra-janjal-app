@@ -1,6 +1,13 @@
 # Digital Ward roadmap
 
 - [ ] Update launch-only splash to the requested 2.5-second animation and verify the transition
+- [ ] Verify builds, all requested routes and public citizen registration
+- [ ] Restore native identity and implement Android back handling
+- [ ] Profile notification toggle and token removal
+- [ ] Secure daily 08:00 IST birthday schedule
+- [ ] Admin auth redirects and password reset
+- [ ] Bounded list queries and parallel Home loading
+- [ ] Verify admin CRUD/uploads and citizen complaint/profile/deletion flow
 
 - [x] Fix greeting, endless loading, register heading contrast
 - [x] New theme (cream/saffron/brown), Shiv Sena logo, Ward No. 22

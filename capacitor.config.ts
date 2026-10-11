@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.rajendrajanjal.digitalward",
-  appName: "Digital Ward",
+  appId: "in.rajendrajanjal.app",
+  appName: "Rajendra Janjal",
   webDir: "dist/client",
   server: { androidScheme: "https" },
   plugins: {
