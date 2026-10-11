@@ -43,6 +43,13 @@
       "when": 1791256951081,
       "tag": "0005_admin_panel",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791686413024,
+      "tag": "0006_device_push_opt_out",
+      "breakpoints": true
     }
   ]
 }

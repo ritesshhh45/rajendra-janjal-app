@@ -550,6 +550,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      unregister_device: {
+        Args: { _fcm_token: string; _id: string; _token: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
