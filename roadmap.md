@@ -1,5 +1,7 @@
 # Digital Ward roadmap
 
+- [ ] Update launch-only splash to the requested 2.5-second animation and verify the transition
+
 - [x] Fix greeting, endless loading, register heading contrast
 - [x] New theme (cream/saffron/brown), Shiv Sena logo, Ward No. 22
 - [x] Single-logo splash, new Home, Services + complaints via WhatsApp, Updates, Schemes, Profile
