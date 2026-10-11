@@ -4,6 +4,8 @@ import { useEffect, type ReactNode } from "react";
 import { useI18n, type Key } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { useSettings, waLink } from "@/lib/content";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "@tanstack/react-router";
 
 const tabs: { to: "/home" | "/services" | "/schemes" | "/updates" | "/profile"; icon: typeof Home; label: Key }[] = [
   { to: "/home", icon: Home, label: "home" },
@@ -37,6 +39,7 @@ export function MobileShell({
   const { session, ready } = useSession();
   const { data: s } = useSettings();
   const navigate = useNavigate();
+  const router = useRouter();
   useEffect(() => {
     if (requireSession && ready && !session) navigate({ to: "/register", replace: true });
   }, [ready, session, requireSession, navigate]);
@@ -47,13 +50,13 @@ export function MobileShell({
       {title && !header && (
         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/95 px-3 backdrop-blur">
           {back && (
-            <button
-              onClick={() => window.history.back()}
+            <Button variant="ghost" size="icon"
+              onClick={() => router.history.canGoBack() ? router.history.back() : void navigate({ to: "/home", replace: true })}
               aria-label={t("back")}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-full active:bg-muted"
             >
               <ChevronLeft className="h-6 w-6" />
-            </button>
+            </Button>
           )}
           <h1 className="truncate px-1 font-display text-2xl font-bold">{title}</h1>
         </header>

@@ -17,6 +17,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useLiveContent } from "@/lib/content";
 import { LaunchScreen } from "@/components/app/LaunchScreen";
 import shivSenaLogo from "@/assets/shiv-sena-logo.png";
+import { initBackButton } from "@/lib/backButton";
 
 function LiveContent() {
   useLiveContent();
@@ -131,6 +132,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  useEffect(() => {
+    let cancelled = false;
+    let dispose: (() => void) | undefined;
+    void initBackButton(router).then((cleanup) => {
+      if (cancelled) cleanup();
+      else dispose = cleanup;
+    });
+    return () => { cancelled = true; dispose?.(); };
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>

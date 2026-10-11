@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Images, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { MobileShell, EmptyState } from "@/components/app/MobileShell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { galleryQuery, useL } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
+import { CLOSE_OVERLAY_EVENT } from "@/lib/backButton";
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({
@@ -24,6 +25,12 @@ function Gallery() {
   const L = useL();
   const { data, isLoading } = useQuery(galleryQuery);
   const [idx, setIdx] = useState<number | null>(null);
+  useEffect(() => {
+    if (idx === null) return;
+    const close = (event: Event) => { event.preventDefault(); setIdx(null); };
+    window.addEventListener(CLOSE_OVERLAY_EVENT, close);
+    return () => window.removeEventListener(CLOSE_OVERLAY_EVENT, close);
+  }, [idx]);
   const touchX = useRef(0);
   const items = data ?? [];
   const go = (d: number) => setIdx((i) => (i === null ? i : (i + d + items.length) % items.length));

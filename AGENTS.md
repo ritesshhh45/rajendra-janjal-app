@@ -11,3 +11,4 @@
 
 - Keep the splash logo as a bundled local image import so it renders independently of preview-only asset URLs on other deployments.
 - Render the launch splash in the root shell's shared route wrapper, server-rendered before Scripts and retained across the initial replace navigation, because TanStack Start has no index.html and the destination must animate beneath the departing logo.
+- Initialize the native back listener once at the root, with cleanup, using a cancellable overlay-close event before router navigation so custom viewers and dialogs dismiss before exit handling.
