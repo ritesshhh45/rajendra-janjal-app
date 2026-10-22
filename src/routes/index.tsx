@@ -1,7 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useSession } from "@/lib/session";
-import shivSenaLogo from "@/assets/shiv-sena-logo.webp";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,22 +15,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Splash() {
-  const { session, ready } = useSession();
-  const navigate = useNavigate();
-  const [finished, setFinished] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setFinished(true), 2100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (ready && finished) navigate({ to: session ? "/home" : "/register", replace: true });
-  }, [ready, finished, session, navigate]);
-
-  return (
-    <main className="grid h-dvh w-full place-items-center overflow-hidden bg-splash-cream">
-      <img src={shivSenaLogo} alt="Shiv Sena" className="animate-splash-logo block w-[180px] max-w-[50%] object-contain" />
-    </main>
-  );
+  // The launch overlay (LaunchScreen) shows the logo and redirects to /home or /register.
+  return <main className="h-dvh w-full bg-splash-cream" />;
 }

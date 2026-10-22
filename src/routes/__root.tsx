@@ -17,6 +17,9 @@ import { SessionProvider } from "@/lib/session";
 import { Toaster } from "@/components/ui/sonner";
 import { useLiveContent } from "@/lib/content";
 import { useAndroidBackButton } from "@/lib/backButton";
+import { LaunchScreen } from "@/components/app/LaunchScreen";
+import { OfflineBanner } from "@/components/app/OfflineBanner";
+import { persistQueryClient } from "@/lib/offline-cache";
 
 function LiveContent() {
   useLiveContent();
@@ -108,9 +111,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -135,15 +135,20 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => persistQueryClient(queryClient), [queryClient]);
+  useEffect(() => {
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      {/* LaunchScreen renders <Outlet /> (nested routes) inside itself. */}
       <I18nProvider>
         <SessionProvider>
           <LiveContent />
           <BackButtonHandler />
-          <Outlet />
+          <OfflineBanner />
+          <LaunchScreen />
           <Toaster position="top-center" />
         </SessionProvider>
       </I18nProvider>

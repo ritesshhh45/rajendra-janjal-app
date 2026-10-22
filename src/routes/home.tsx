@@ -6,9 +6,10 @@ import { LangToggle } from "@/components/app/LangToggle";
 import { LeaderCard } from "@/components/app/LeaderCard";
 import { DbIcon } from "@/components/app/Icon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSettings, useL, updatesQuery, worksQuery, schemesQuery, galleryQuery, useUnread } from "@/lib/content";
+import { useSettings, fallbacks, useL, updatesQuery, worksQuery, schemesQuery, galleryQuery, useUnread } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useMe } from "@/lib/use-me";
+import { SafeImage } from "@/components/app/SafeImage";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -38,14 +39,14 @@ function HomePage() {
   const header = (
     <header className="sticky top-0 z-20 flex items-center gap-2 bg-background/95 px-4 py-3 backdrop-blur">
       {s ? (
-        <img src={s.header_photo_url} alt="" className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover object-top" />
+        <SafeImage src={s.header_photo_url} fallback={fallbacks.header} priority alt="" className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover object-top" />
       ) : (
         <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
       )}
       <p className="min-w-0 flex-1 truncate font-display text-lg font-bold leading-tight">
         {t("namaskar")}{firstName ? `, ${firstName}` : ""} 🙏
       </p>
-      {s && <img src={s.party_logo_url} alt="" className="h-10 w-10 shrink-0 rounded-full object-contain" />}
+      {s && <SafeImage src={s.party_logo_url} fallback={fallbacks.logo} priority alt="" className="h-10 w-10 shrink-0 rounded-full object-contain" />}
       <Link to="/updates" aria-label={t("updates")} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-card shadow-card">
         <Bell className="h-5 w-5 text-primary" />
         {unread > 0 && (
@@ -94,7 +95,7 @@ function HomePage() {
         {works.data?.slice(0, 4).map((w) => (
           <div key={w.id} className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card">
             {w.photo_url ? (
-              <img src={w.photo_url} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
+              <img src={w.photo_url} alt="" decoding="async" loading="lazy" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
             ) : (
               <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-secondary text-primary"><Hammer className="h-7 w-7" /></div>
             )}
@@ -135,7 +136,7 @@ function HomePage() {
         {gallery.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-28 shrink-0 rounded-2xl" />)}
         {gallery.data?.slice(0, 8).map((g) => (
           <Link key={g.id} to="/gallery" className="shrink-0">
-            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} className="h-28 w-28 rounded-2xl object-cover" loading="lazy" />
+            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} className="h-28 w-28 rounded-2xl object-cover" loading="lazy" decoding="async" />
           </Link>
         ))}
       </div>

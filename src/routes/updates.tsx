@@ -37,7 +37,7 @@ function Updates() {
   const loading = u.isLoading || n.isLoading;
 
   return (
-    <MobileShell title={t("updates")} fab>
+    <MobileShell title={t("updates")} back fab>
       <div className="space-y-4 p-5 pt-2">
         {loading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
         {u.isError && <ErrorState />}

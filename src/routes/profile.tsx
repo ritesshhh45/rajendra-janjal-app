@@ -72,7 +72,7 @@ function Profile() {
   };
 
   return (
-    <MobileShell title={t("profile")}>
+    <MobileShell title={t("profile")} back>
       <div className="space-y-5 p-5">
         {isLoading ? <Skeleton className="h-64 rounded-2xl" /> : (
           <div className="space-y-4 rounded-3xl bg-card p-4 shadow-card">

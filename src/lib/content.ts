@@ -1,6 +1,8 @@
 import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+type SettingsRow = Database["public"]["Tables"]["app_settings"]["Row"];
 import { useI18n } from "@/lib/i18n";
 // Images live in /public/images and are served from the site root on any host.
 export const fallbacks = {
@@ -16,11 +18,8 @@ export function useL() {
   return (mr?: string | null, en?: string | null) => (lang === "mr" ? mr || en : en || mr) ?? "";
 }
 
-export const settingsQuery = queryOptions({
-  queryKey: ["settings"],
-  queryFn: async () => {
-    const { data } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
-    return {
+function buildSettings(data: SettingsRow | null) {
+  return {
       name_mr: data?.name_mr ?? "राजेंद्र जंजाळ",
       name_en: data?.name_en ?? "Rajendra Janjal",
       designation_mr: data?.designation_mr ?? "उपमहापौर व जिल्हाप्रमुख",
@@ -42,12 +41,21 @@ export const settingsQuery = queryOptions({
       header_photo_url: data?.header_photo_url || fallbacks.header,
       leader_photo_url: data?.leader_photo_url || fallbacks.leader,
       party_logo_url: data?.party_logo_url || fallbacks.logo,
-    };
+  };
+}
+export type Settings = ReturnType<typeof buildSettings>;
+
+export const settingsQuery = queryOptions({
+  queryKey: ["settings"],
+  queryFn: async (): Promise<Settings> => {
+    const { data } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
+    return buildSettings(data);
   },
+  // Show bundled defaults instantly; real values replace them when Supabase answers.
+  placeholderData: () => buildSettings(null),
   staleTime: 60_000,
   retry: 1,
 });
-export type Settings = Awaited<ReturnType<typeof settingsQuery.queryFn & {}>>;
 
 export const useSettings = () => useQuery(settingsQuery);
 

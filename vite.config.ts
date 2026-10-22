@@ -8,6 +8,9 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   tanstackStart: {
+    // Only for the Android app build (npm run build:app): emits an SPA shell the APK bundles locally.
+    // The normal web build (Vercel/Lovable) is untouched.
+    ...(process.env["CAPACITOR_BUILD"] ? { spa: { enabled: true } } : {}),
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },

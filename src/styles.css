@@ -1,6 +1,14 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "@fontsource/baloo-2/500.css";
+@import "@fontsource/baloo-2/600.css";
+@import "@fontsource/baloo-2/700.css";
+@import "@fontsource/baloo-2/800.css";
+@import "@fontsource/noto-sans-devanagari/devanagari-400.css";
+@import "@fontsource/noto-sans-devanagari/devanagari-500.css";
+@import "@fontsource/noto-sans-devanagari/devanagari-600.css";
+@import "@fontsource/noto-sans-devanagari/devanagari-700.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -145,3 +153,8 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-splash-logo { animation: none; }
 }
+
+/* Launch splash overlay (shown over the first route, then fades away) */
+.launch-splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--splash-cream); transition: opacity .5s ease; }
+.launch-splash-exit { opacity: 0; pointer-events: none; }
+.launch-splash-logo { width: 160px; height: 160px; max-width: 50%; object-fit: contain; animation: splash-logo-in .6s ease-out both; }

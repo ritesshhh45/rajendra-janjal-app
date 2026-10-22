@@ -48,7 +48,7 @@ export function MobileShell({
         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/95 px-3 backdrop-blur">
           {back && (
             <button
-              onClick={() => window.history.back()}
+              onClick={() => (window.history.length > 1 ? window.history.back() : navigate({ to: "/home", replace: true }))}
               aria-label={t("back")}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-full active:bg-muted"
             >

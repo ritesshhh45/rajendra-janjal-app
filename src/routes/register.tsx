@@ -13,6 +13,7 @@ import { useI18n, type Key } from "@/lib/i18n";
 import { useSession, getDeviceId } from "@/lib/session";
 import { registerCitizen, CitizenError } from "@/lib/citizen";
 import { registerSchema, toAsciiDigits } from "@/lib/validation";
+import { SafeImage } from "@/components/app/SafeImage";
 import { LangToggle } from "@/components/app/LangToggle";
 
 export const Route = createFileRoute("/register")({
@@ -95,8 +96,10 @@ function Register() {
     <PhoneFrame>
       <div className="min-h-dvh bg-splash-cream">
       <div className="relative h-[50vh] min-h-[320px] w-full overflow-hidden">
-        <img
+        <SafeImage
           src={data?.leader_photo_url ?? fallbacks.leader}
+          fallback={fallbacks.leader}
+          priority
           alt="Rajendra Janjal"
           className="h-full w-full object-cover object-top"
         />

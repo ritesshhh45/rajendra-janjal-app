@@ -23,3 +23,15 @@ export async function registerPush(session: CitizenSession) {
     console.error("[push] setup failed", e);
   }
 }
+
+/** Hide the native Android splash once the web splash is painted. Safe no-op in a browser. */
+export async function hideNativeSplash() {
+  try {
+    const { Capacitor } = await import("@capacitor/core");
+    if (!Capacitor.isNativePlatform()) return;
+    const { SplashScreen } = await import("@capacitor/splash-screen");
+    await SplashScreen.hide({ fadeOutDuration: 150 });
+  } catch {
+    /* ignore */
+  }
+}
