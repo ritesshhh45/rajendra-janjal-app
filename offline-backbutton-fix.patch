@@ -1,0 +1,997 @@
+From ff07718d8504baa289e709ab22fc2065b015a20b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 22 Oct 2026 03:52:39 +0000
+Subject: [PATCH] Bundle app locally for Android (offline), fix back button,
+ splash, fonts, offline cache
+
+---
+ .gitignore                               |   1 +
+ android/app/src/main/AndroidManifest.xml |   2 +
+ capacitor.config.ts                      |  11 +-
+ package-lock.json                        | 170 +++++++++++------------
+ package.json                             |   8 +-
+ scripts/prepare-capacitor.mjs            |   8 ++
+ src/components/app/MobileShell.tsx       |   2 +-
+ src/components/app/OfflineBanner.tsx     |  22 +++
+ src/lib/backButton.ts                    |  57 ++++----
+ src/lib/offline-cache.ts                 |  15 ++
+ src/lib/push.ts                          |  12 ++
+ src/routeTree.gen.ts                     |  21 +++
+ src/router.tsx                           |  11 +-
+ src/routes/__root.tsx                    |  12 +-
+ src/routes/index.tsx                     |  25 +---
+ src/routes/profile.tsx                   |   2 +-
+ src/routes/schemes.tsx                   |   2 +-
+ src/routes/services.tsx                  |   2 +-
+ src/routes/updates.tsx                   |   2 +-
+ src/styles.css                           |  13 ++
+ vite.config.ts                           |   2 +
+ 21 files changed, 246 insertions(+), 154 deletions(-)
+ create mode 100644 scripts/prepare-capacitor.mjs
+ create mode 100644 src/components/app/OfflineBanner.tsx
+ create mode 100644 src/lib/offline-cache.ts
+
+diff --git a/.gitignore b/.gitignore
+index d71a686..eb581cb 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -32,3 +32,4 @@ dist-ssr
+ *.sw?
+ 
+ .env
++capacitor-www
+diff --git a/android/app/src/main/AndroidManifest.xml b/android/app/src/main/AndroidManifest.xml
+index b06ddbf..c5f3335 100644
+--- a/android/app/src/main/AndroidManifest.xml
++++ b/android/app/src/main/AndroidManifest.xml
+@@ -38,4 +38,6 @@
+     <!-- Permissions -->
+ 
+     <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+ </manifest>
+diff --git a/capacitor.config.ts b/capacitor.config.ts
+index 02403c5..09b81ec 100644
+--- a/capacitor.config.ts
++++ b/capacitor.config.ts
+@@ -1,14 +1,15 @@
+-
+ import type { CapacitorConfig } from '@capacitor/cli';
+ 
++// The app UI is bundled inside the APK (capacitor-www), so it opens instantly and works offline.
++// Data comes from Supabase and is cached locally for offline use.
+ const config: CapacitorConfig = {
+   appId: 'in.rajendrajanjal.app',
+   appName: 'Rajendra Janjal',
+   webDir: 'capacitor-www',
+-  server: {
+-    url: 'https://rajendra-janjal-app.vercel.app/home',
+-    cleartext: false
+-  }
++  android: { allowMixedContent: false },
++  plugins: {
++    SplashScreen: { launchAutoHide: true, launchShowDuration: 3000, launchFadeOutDuration: 150 },
++  },
+ };
+ 
+ export default config;
+diff --git a/package-lock.json b/package-lock.json
+index 224843a..1a8caeb 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -11,6 +11,8 @@
+         "@capacitor/core": "^8.5.3",
+         "@capacitor/push-notifications": "^8.1.3",
+         "@capacitor/splash-screen": "^8.0.2",
++        "@fontsource/baloo-2": "^5.3.0",
++        "@fontsource/noto-sans-devanagari": "^5.3.0",
+         "@hookform/resolvers": "^5.2.2",
+         "@radix-ui/react-accordion": "^1.2.12",
+         "@radix-ui/react-alert-dialog": "^1.1.15",
+@@ -40,7 +42,9 @@
+         "@radix-ui/react-tooltip": "^1.2.8",
+         "@supabase/supabase-js": "^2.117.2",
+         "@tailwindcss/vite": "^4.2.1",
++        "@tanstack/query-sync-storage-persister": "^5.104.5",
+         "@tanstack/react-query": "^5.101.1",
++        "@tanstack/react-query-persist-client": "^5.104.5",
+         "@tanstack/react-router": "1.170.41",
+         "@tanstack/react-start": "1.168.60",
+         "@tanstack/router-plugin": "1.168.42",
+@@ -1544,6 +1548,24 @@
+       "version": "0.2.12",
+       "license": "MIT"
+     },
++    "node_modules/@fontsource/baloo-2": {
++      "version": "5.3.0",
++      "resolved": "https://registry.npmjs.org/@fontsource/baloo-2/-/baloo-2-5.3.0.tgz",
++      "integrity": "sha512-CBuxZ27jvMmD5+KaaPkMWv/yjdRNppVAd5/002yAyvyQyLNL3aZCbkx6gbAT/bjxPd1A0VMdDQjfcELI8chccQ==",
++      "license": "OFL-1.1",
++      "funding": {
++        "url": "https://github.com/sponsors/ayuhito"
++      }
++    },
++    "node_modules/@fontsource/noto-sans-devanagari": {
++      "version": "5.3.0",
++      "resolved": "https://registry.npmjs.org/@fontsource/noto-sans-devanagari/-/noto-sans-devanagari-5.3.0.tgz",
++      "integrity": "sha512-7khYmipS/5KAUUmrO1DKir8yL8XI00d0+ZE9BqbS8XF1jzObv6CpPOk3UeYxF+Pvi8bx9bBvprBCOcbx/eQWTQ==",
++      "license": "OFL-1.1",
++      "funding": {
++        "url": "https://github.com/sponsors/ayuhito"
++      }
++    },
+     "node_modules/@hookform/resolvers": {
+       "version": "5.9.1",
+       "license": "MIT",
+@@ -2126,9 +2148,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2146,9 +2165,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2166,9 +2182,6 @@
+         "ppc64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2186,9 +2199,6 @@
+         "riscv64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2206,9 +2216,6 @@
+         "riscv64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2226,9 +2233,6 @@
+         "s390x"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2246,9 +2250,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2266,9 +2267,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3665,9 +3663,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3684,9 +3679,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3703,9 +3695,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3722,9 +3711,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3741,9 +3727,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3760,9 +3743,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4102,9 +4082,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -4125,9 +4102,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -4148,9 +4122,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -4171,9 +4142,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -4333,9 +4301,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4352,9 +4317,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4371,9 +4333,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4390,9 +4349,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4575,29 +4531,85 @@
+       }
+     },
+     "node_modules/@tanstack/query-core": {
+-      "version": "5.104.1",
+-      "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.104.1.tgz",
+-      "integrity": "sha512-TiRghcrGkUTE+M4JBxvpPSpBhxvIzQairw+cksrHYGr+2uwC77yW1SY9nYxnYRYOppvucf8rEg6b5byoz4rTpw==",
++      "version": "5.104.5",
++      "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.104.5.tgz",
++      "integrity": "sha512-Q94gI8Opd+CbdVNOdj8ZCyV8WqLYitrDq1t96Xc8WZT6lY0r5iRnJLXYDxMex7EEf2v+mXvn4FcjaBKSxXZQ9A==",
+       "license": "MIT",
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/tannerlinsley"
+       }
+     },
++    "node_modules/@tanstack/query-persist-client-core": {
++      "version": "5.104.5",
++      "resolved": "https://registry.npmjs.org/@tanstack/query-persist-client-core/-/query-persist-client-core-5.104.5.tgz",
++      "integrity": "sha512-z0+AuCPPf53bl1nntO9i8ZXGvSdO7nGRZFtcpM2DCZKz88UBzHpJZZJpuUkLFkDU7xYHnUOMrOJmky+Et1nRLg==",
++      "license": "MIT",
++      "dependencies": {
++        "@tanstack/query-core": "5.104.5"
++      },
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/tannerlinsley"
++      }
++    },
++    "node_modules/@tanstack/query-sync-storage-persister": {
++      "version": "5.104.5",
++      "resolved": "https://registry.npmjs.org/@tanstack/query-sync-storage-persister/-/query-sync-storage-persister-5.104.5.tgz",
++      "integrity": "sha512-Tj/Uc2eRaJaUSMu1PG+K3V1lJ9DCeK2goNtGU/vw+plzqYsVzwz3RoZlbeXNLWzKXE1lzC2Y5tjMFoyKpIu9iA==",
++      "license": "MIT",
++      "dependencies": {
++        "@tanstack/query-core": "5.104.5",
++        "@tanstack/query-persist-client-core": "5.104.5"
++      },
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/tannerlinsley"
++      }
++    },
+     "node_modules/@tanstack/react-query": {
+-      "version": "5.104.1",
+-      "resolved": "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.104.1.tgz",
+-      "integrity": "sha512-Zz70EgjahNI7aCz8BZxM3vUGU44ycxEAzMuCUjLeA7SVhhOkg3ZgPjPJPvHjs6Rmky/dtmnu1WzjGHNHmhCoZQ==",
++      "version": "5.104.5",
++      "resolved": "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.104.5.tgz",
++      "integrity": "sha512-RORgFe052U+93weaNuqg7qHq7vNVNzXN/VrXqD4bbAuQCWUqOl2lV5Ui9flWk5CVvMyL/Bh27QWhzwH0aaOx9g==",
+       "license": "MIT",
+       "dependencies": {
+-        "@tanstack/query-core": "5.104.1"
++        "@tanstack/query-core": "5.104.5"
+       },
+       "funding": {
+         "type": "github",
+         "url": "https://github.com/sponsors/tannerlinsley"
+       },
+       "peerDependencies": {
++        "@types/react": "^18 || ^19",
+         "react": "^18 || ^19"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        }
++      }
++    },
++    "node_modules/@tanstack/react-query-persist-client": {
++      "version": "5.104.5",
++      "resolved": "https://registry.npmjs.org/@tanstack/react-query-persist-client/-/react-query-persist-client-5.104.5.tgz",
++      "integrity": "sha512-nXtb9e3smFl5xzGuttzck5VjwA18ZolPLj1ybt2zjEJudIUh/gRFxeNY0855YFp/+N0V1s/lpWLSrO89iQ5IcQ==",
++      "license": "MIT",
++      "dependencies": {
++        "@tanstack/query-persist-client-core": "5.104.5"
++      },
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/tannerlinsley"
++      },
++      "peerDependencies": {
++        "@tanstack/react-query": "^5.104.5",
++        "@types/react": "^18 || ^19",
++        "react": "^18 || ^19"
++      },
++      "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        }
+       }
+     },
+     "node_modules/@tanstack/react-router": {
+@@ -8662,9 +8674,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -8685,9 +8694,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -8708,9 +8714,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -8731,9 +8734,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+diff --git a/package.json b/package.json
+index 6cd994a..904b322 100644
+--- a/package.json
++++ b/package.json
+@@ -11,7 +11,9 @@
+     "lint": "eslint .",
+     "format": "prettier --write .",
+     "test": "vitest run",
+-    "test:watch": "vitest"
++    "test:watch": "vitest",
++    "build:app": "vite build && node scripts/prepare-capacitor.mjs",
++    "android:sync": "npm run build:app && npx cap sync android"
+   },
+   "overrides": {
+     "rolldown": "1.2.1"
+@@ -22,6 +24,8 @@
+     "@capacitor/core": "^8.5.3",
+     "@capacitor/push-notifications": "^8.1.3",
+     "@capacitor/splash-screen": "^8.0.2",
++    "@fontsource/baloo-2": "^5.3.0",
++    "@fontsource/noto-sans-devanagari": "^5.3.0",
+     "@hookform/resolvers": "^5.2.2",
+     "@radix-ui/react-accordion": "^1.2.12",
+     "@radix-ui/react-alert-dialog": "^1.1.15",
+@@ -51,7 +55,9 @@
+     "@radix-ui/react-tooltip": "^1.2.8",
+     "@supabase/supabase-js": "^2.117.2",
+     "@tailwindcss/vite": "^4.2.1",
++    "@tanstack/query-sync-storage-persister": "^5.104.5",
+     "@tanstack/react-query": "^5.101.1",
++    "@tanstack/react-query-persist-client": "^5.104.5",
+     "@tanstack/react-router": "1.170.41",
+     "@tanstack/react-start": "1.168.60",
+     "@tanstack/router-plugin": "1.168.42",
+diff --git a/scripts/prepare-capacitor.mjs b/scripts/prepare-capacitor.mjs
+new file mode 100644
+index 0000000..2f23d0f
+--- /dev/null
++++ b/scripts/prepare-capacitor.mjs
+@@ -0,0 +1,8 @@
++// Copies the SPA build (.output/public) into capacitor-www so the Android app ships the UI offline.
++import { cpSync, rmSync, existsSync, copyFileSync } from "node:fs";
++const src = ".output/public", out = "capacitor-www";
++if (!existsSync(`${src}/_shell.html`)) throw new Error("Run `vite build` first (SPA shell _shell.html not found).");
++rmSync(out, { recursive: true, force: true });
++cpSync(src, out, { recursive: true });
++copyFileSync(`${out}/_shell.html`, `${out}/index.html`);
++console.log("capacitor-www ready");
+diff --git a/src/components/app/MobileShell.tsx b/src/components/app/MobileShell.tsx
+index 0a30a60..81110bb 100644
+--- a/src/components/app/MobileShell.tsx
++++ b/src/components/app/MobileShell.tsx
+@@ -48,7 +48,7 @@ export function MobileShell({
+         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/95 px-3 backdrop-blur">
+           {back && (
+             <button
+-              onClick={() => window.history.back()}
++              onClick={() => (window.history.length > 1 ? window.history.back() : navigate({ to: "/home", replace: true }))}
+               aria-label={t("back")}
+               className="grid h-11 w-11 shrink-0 place-items-center rounded-full active:bg-muted"
+             >
+diff --git a/src/components/app/OfflineBanner.tsx b/src/components/app/OfflineBanner.tsx
+new file mode 100644
+index 0000000..8ff24b0
+--- /dev/null
++++ b/src/components/app/OfflineBanner.tsx
+@@ -0,0 +1,22 @@
++import { useEffect, useState } from "react";
++import { WifiOff } from "lucide-react";
++
++export function OfflineBanner() {
++  const [online, setOnline] = useState(true);
++  useEffect(() => {
++    const sync = () => setOnline(navigator.onLine);
++    sync();
++    window.addEventListener("online", sync);
++    window.addEventListener("offline", sync);
++    return () => {
++      window.removeEventListener("online", sync);
++      window.removeEventListener("offline", sync);
++    };
++  }, []);
++  if (online) return null;
++  return (
++    <div className="pt-safe fixed inset-x-0 top-0 z-[90] mx-auto flex max-w-[430px] items-center justify-center gap-2 bg-foreground/90 px-3 py-1.5 text-xs font-semibold text-background">
++      <WifiOff className="h-3.5 w-3.5" /> ऑफलाइन मोड / Offline mode
++    </div>
++  );
++}
+diff --git a/src/lib/backButton.ts b/src/lib/backButton.ts
+index 973c14c..e6bc8e6 100644
+--- a/src/lib/backButton.ts
++++ b/src/lib/backButton.ts
+@@ -5,6 +5,16 @@ import { Capacitor } from "@capacitor/core";
+ const ROOT_ROUTES = ["/home", "/register", "/"];
+ const TAB_ROUTES = ["/services", "/schemes", "/updates", "/profile"];
+ 
++export type BackAction = "home" | "prompt" | "exit" | "back";
++
++/** Pure decision for the Android hardware back button. */
++export function backAction(path: string, hasHistory: boolean, sinceLastBackMs: number): BackAction {
++  const clean = path.length > 1 ? path.replace(/\/+$/, "") : path;
++  if (TAB_ROUTES.includes(clean)) return "home";
++  if (ROOT_ROUTES.includes(clean)) return sinceLastBackMs < 2000 ? "exit" : "prompt";
++  return hasHistory ? "back" : "home";
++}
++
+ export function useAndroidBackButton() {
+   const router = useRouter();
+ 
+@@ -17,42 +27,29 @@ export function useAndroidBackButton() {
+     (async () => {
+       const { App } = await import("@capacitor/app");
+       const handle = await App.addListener("backButton", () => {
+-        // 1) close any open dialog / bottom sheet
++        // 1) close any open dialog / bottom sheet / lightbox first
+         const overlay = document.querySelector(
+-          '[role="dialog"][data-state="open"], [data-vaul-drawer][data-state="open"]'
++          '[role="dialog"][data-state="open"], [data-vaul-drawer][data-state="open"]',
+         );
+         if (overlay) {
+-          document.dispatchEvent(
+-            new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+-          );
++          document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+           return;
+         }
+ 
+-        const path = router.state.location.pathname;
+-
+-        // 2) tab page -> Home
+-        if (TAB_ROUTES.some((p) => path.startsWith(p)) && path.split("/").length <= 2) {
+-          router.navigate({ to: "/home", replace: true });
+-          return;
+-        }
+-
+-        // 3) root page -> press twice to exit
+-        if (ROOT_ROUTES.includes(path)) {
+-          const now = Date.now();
+-          if (now - lastBack < 2000) {
+-            App.exitApp();
+-          } else {
+-            lastBack = now;
+-            import("sonner").then(({ toast }) =>
+-              toast("बाहेर पडण्यासाठी पुन्हा मागे दाबा / Press back again to exit")
+-            );
+-          }
+-          return;
++        const action = backAction(
++          router.state.location.pathname,
++          window.history.length > 1,
++          Date.now() - lastBack,
++        );
++        if (action === "home") router.navigate({ to: "/home", replace: true });
++        else if (action === "back") router.history.back();
++        else if (action === "exit") void App.exitApp();
++        else {
++          lastBack = Date.now();
++          import("sonner").then(({ toast }) =>
++            toast("बाहेर पडण्यासाठी पुन्हा मागे दाबा / Press back again to exit"),
++          );
+         }
+-
+-        // 4) inner page -> go back, or Home if no history
+-        if (window.history.length > 1) router.history.back();
+-        else router.navigate({ to: "/home", replace: true });
+       });
+       if (cancelled) handle.remove();
+       else remove = () => handle.remove();
+@@ -63,4 +60,4 @@ export function useAndroidBackButton() {
+       remove?.();
+     };
+   }, [router]);
+-}
+\ No newline at end of file
++}
+diff --git a/src/lib/offline-cache.ts b/src/lib/offline-cache.ts
+new file mode 100644
+index 0000000..1a1e107
+--- /dev/null
++++ b/src/lib/offline-cache.ts
+@@ -0,0 +1,15 @@
++// Persist React Query data (settings, schemes, updates, gallery...) so screens open offline.
++import type { QueryClient } from "@tanstack/react-query";
++import { persistQueryClient as persist } from "@tanstack/react-query-persist-client";
++import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
++
++export function persistQueryClient(queryClient: QueryClient): () => void {
++  if (typeof window === "undefined") return () => {};
++  try {
++    const persister = createSyncStoragePersister({ storage: window.localStorage, key: "dw_query_cache", throttleTime: 1000 });
++    const [unsub] = persist({ queryClient, persister, maxAge: 1000 * 60 * 60 * 24 * 7 });
++    return unsub;
++  } catch {
++    return () => {};
++  }
++}
+diff --git a/src/lib/push.ts b/src/lib/push.ts
+index 65e0a9d..0baa84e 100644
+--- a/src/lib/push.ts
++++ b/src/lib/push.ts
+@@ -23,3 +23,15 @@ export async function registerPush(session: CitizenSession) {
+     console.error("[push] setup failed", e);
+   }
+ }
++
++/** Hide the native Android splash once the web splash is painted. Safe no-op in a browser. */
++export async function hideNativeSplash() {
++  try {
++    const { Capacitor } = await import("@capacitor/core");
++    if (!Capacitor.isNativePlatform()) return;
++    const { SplashScreen } = await import("@capacitor/splash-screen");
++    await SplashScreen.hide({ fadeOutDuration: 150 });
++  } catch {
++    /* ignore */
++  }
++}
+diff --git a/src/routeTree.gen.ts b/src/routeTree.gen.ts
+index cb03333..fee650f 100644
+--- a/src/routeTree.gen.ts
++++ b/src/routeTree.gen.ts
+@@ -11,6 +11,7 @@
+ import { Route as rootRouteImport } from './routes/__root'
+ import { Route as IndexRouteImport } from './routes/index'
+ import { Route as AboutRouteImport } from './routes/about'
++import { Route as AdminRouteImport } from './routes/admin'
+ import { Route as ContactRouteImport } from './routes/contact'
+ import { Route as GalleryRouteImport } from './routes/gallery'
+ import { Route as HomeRouteImport } from './routes/home'
+@@ -35,6 +36,11 @@ const AboutRoute = AboutRouteImport.update({
+   path: '/about',
+   getParentRoute: () => rootRouteImport,
+ } as any)
++const AdminRoute = AdminRouteImport.update({
++  id: '/admin',
++  path: '/admin',
++  getParentRoute: () => rootRouteImport,
++} as any)
+ const ContactRoute = ContactRouteImport.update({
+   id: '/contact',
+   path: '/contact',
+@@ -106,6 +112,7 @@ const ApiPublicHooksBirthdayWishesRoute =
+ export interface FileRoutesByFullPath {
+   '/': typeof IndexRoute
+   '/about': typeof AboutRoute
++  '/admin': typeof AdminRoute
+   '/contact': typeof ContactRoute
+   '/gallery': typeof GalleryRoute
+   '/home': typeof HomeRoute
+@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
+ export interface FileRoutesByTo {
+   '/': typeof IndexRoute
+   '/about': typeof AboutRoute
++  '/admin': typeof AdminRoute
+   '/contact': typeof ContactRoute
+   '/gallery': typeof GalleryRoute
+   '/home': typeof HomeRoute
+@@ -141,6 +149,7 @@ export interface FileRoutesById {
+   __root__: typeof rootRouteImport
+   '/': typeof IndexRoute
+   '/about': typeof AboutRoute
++  '/admin': typeof AdminRoute
+   '/contact': typeof ContactRoute
+   '/gallery': typeof GalleryRoute
+   '/home': typeof HomeRoute
+@@ -160,6 +169,7 @@ export interface FileRouteTypes {
+   fullPaths:
+     | '/'
+     | '/about'
++    | '/admin'
+     | '/contact'
+     | '/gallery'
+     | '/home'
+@@ -177,6 +187,7 @@ export interface FileRouteTypes {
+   to:
+     | '/'
+     | '/about'
++    | '/admin'
+     | '/contact'
+     | '/gallery'
+     | '/home'
+@@ -194,6 +205,7 @@ export interface FileRouteTypes {
+     | '__root__'
+     | '/'
+     | '/about'
++    | '/admin'
+     | '/contact'
+     | '/gallery'
+     | '/home'
+@@ -212,6 +224,7 @@ export interface FileRouteTypes {
+ export interface RootRouteChildren {
+   IndexRoute: typeof IndexRoute
+   AboutRoute: typeof AboutRoute
++  AdminRoute: typeof AdminRoute
+   ContactRoute: typeof ContactRoute
+   GalleryRoute: typeof GalleryRoute
+   HomeRoute: typeof HomeRoute
+@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
+       preLoaderRoute: typeof AboutRouteImport
+       parentRoute: typeof rootRouteImport
+     }
++    '/admin': {
++      id: '/admin'
++      path: '/admin'
++      fullPath: '/admin'
++      preLoaderRoute: typeof AdminRouteImport
++      parentRoute: typeof rootRouteImport
++    }
+     '/contact': {
+       id: '/contact'
+       path: '/contact'
+@@ -340,6 +360,7 @@ declare module '@tanstack/react-router' {
+ const rootRouteChildren: RootRouteChildren = {
+   IndexRoute: IndexRoute,
+   AboutRoute: AboutRoute,
++  AdminRoute: AdminRoute,
+   ContactRoute: ContactRoute,
+   GalleryRoute: GalleryRoute,
+   HomeRoute: HomeRoute,
+diff --git a/src/router.tsx b/src/router.tsx
+index 3423d59..6bd9f61 100644
+--- a/src/router.tsx
++++ b/src/router.tsx
+@@ -3,7 +3,16 @@ import { createRouter } from "@tanstack/react-router";
+ import { routeTree } from "./routeTree.gen";
+ 
+ export const getRouter = () => {
+-  const queryClient = new QueryClient();
++  const queryClient = new QueryClient({
++    defaultOptions: {
++      queries: {
++        networkMode: "offlineFirst", // serve cached data when offline instead of pausing forever
++        gcTime: 1000 * 60 * 60 * 24 * 7,
++        staleTime: 60_000,
++        refetchOnReconnect: true,
++      },
++    },
++  });
+ 
+   const router = createRouter({
+     routeTree,
+diff --git a/src/routes/__root.tsx b/src/routes/__root.tsx
+index a4dcc23..57aa3ed 100644
+--- a/src/routes/__root.tsx
++++ b/src/routes/__root.tsx
+@@ -17,6 +17,9 @@ import { SessionProvider } from "@/lib/session";
+ import { Toaster } from "@/components/ui/sonner";
+ import { useLiveContent } from "@/lib/content";
+ import { useAndroidBackButton } from "@/lib/backButton";
++import { LaunchScreen } from "@/components/app/LaunchScreen";
++import { OfflineBanner } from "@/components/app/OfflineBanner";
++import { persistQueryClient } from "@/lib/offline-cache";
+ 
+ function LiveContent() {
+   useLiveContent();
+@@ -108,9 +111,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+         href: appCss,
+       },
+       { rel: "icon", href: "/favicon.png", type: "image/png" },
+-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" },
+     ],
+   }),
+   shellComponent: RootShell,
+@@ -135,15 +135,17 @@ function RootShell({ children }: { children: ReactNode }) {
+ 
+ function RootComponent() {
+   const { queryClient } = Route.useRouteContext();
++  useEffect(() => persistQueryClient(queryClient), [queryClient]);
+ 
+   return (
+     <QueryClientProvider client={queryClient}>
+-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
++      {/* LaunchScreen renders <Outlet /> (nested routes) inside itself. */}
+       <I18nProvider>
+         <SessionProvider>
+           <LiveContent />
+           <BackButtonHandler />
+-          <Outlet />
++          <OfflineBanner />
++          <LaunchScreen />
+           <Toaster position="top-center" />
+         </SessionProvider>
+       </I18nProvider>
+diff --git a/src/routes/index.tsx b/src/routes/index.tsx
+index a47d976..1337183 100644
+--- a/src/routes/index.tsx
++++ b/src/routes/index.tsx
+@@ -1,7 +1,4 @@
+-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+-import { useEffect, useState } from "react";
+-import { useSession } from "@/lib/session";
+-import shivSenaLogo from "@/assets/shiv-sena-logo.webp";
++import { createFileRoute } from "@tanstack/react-router";
+ 
+ export const Route = createFileRoute("/")({
+   head: () => ({
+@@ -18,22 +15,6 @@ export const Route = createFileRoute("/")({
+ });
+ 
+ function Splash() {
+-  const { session, ready } = useSession();
+-  const navigate = useNavigate();
+-  const [finished, setFinished] = useState(false);
+-
+-  useEffect(() => {
+-    const timer = setTimeout(() => setFinished(true), 2100);
+-    return () => clearTimeout(timer);
+-  }, []);
+-
+-  useEffect(() => {
+-    if (ready && finished) navigate({ to: session ? "/home" : "/register", replace: true });
+-  }, [ready, finished, session, navigate]);
+-
+-  return (
+-    <main className="grid h-dvh w-full place-items-center overflow-hidden bg-splash-cream">
+-      <img src={shivSenaLogo} alt="Shiv Sena" className="animate-splash-logo block w-[180px] max-w-[50%] object-contain" />
+-    </main>
+-  );
++  // The launch overlay (LaunchScreen) shows the logo and redirects to /home or /register.
++  return <main className="h-dvh w-full bg-splash-cream" />;
+ }
+diff --git a/src/routes/profile.tsx b/src/routes/profile.tsx
+index b619a7d..d2b6fd8 100644
+--- a/src/routes/profile.tsx
++++ b/src/routes/profile.tsx
+@@ -72,7 +72,7 @@ function Profile() {
+   };
+ 
+   return (
+-    <MobileShell title={t("profile")}>
++    <MobileShell title={t("profile")} back>
+       <div className="space-y-5 p-5">
+         {isLoading ? <Skeleton className="h-64 rounded-2xl" /> : (
+           <div className="space-y-4 rounded-3xl bg-card p-4 shadow-card">
+diff --git a/src/routes/schemes.tsx b/src/routes/schemes.tsx
+index 9f32a93..755ba05 100644
+--- a/src/routes/schemes.tsx
++++ b/src/routes/schemes.tsx
+@@ -31,7 +31,7 @@ function Schemes() {
+   );
+ 
+   return (
+-    <MobileShell title={t("schemes")}>
++    <MobileShell title={t("schemes")} back>
+       <div className="space-y-3 p-4">
+         <div className="relative">
+           <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+diff --git a/src/routes/services.tsx b/src/routes/services.tsx
+index edf4825..b39808d 100644
+--- a/src/routes/services.tsx
++++ b/src/routes/services.tsx
+@@ -61,7 +61,7 @@ function Services() {
+   };
+ 
+   return (
+-    <MobileShell title={t("services")} fab>
++    <MobileShell title={t("services")} back fab>
+       <p className="px-5 text-muted-foreground">{t("servicesSub")}</p>
+       <div className="grid grid-cols-2 gap-3 p-5">
+         {isLoading && Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
+diff --git a/src/routes/updates.tsx b/src/routes/updates.tsx
+index 3ebfc88..7ceddca 100644
+--- a/src/routes/updates.tsx
++++ b/src/routes/updates.tsx
+@@ -37,7 +37,7 @@ function Updates() {
+   const loading = u.isLoading || n.isLoading;
+ 
+   return (
+-    <MobileShell title={t("updates")} fab>
++    <MobileShell title={t("updates")} back fab>
+       <div className="space-y-4 p-5 pt-2">
+         {loading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
+         {u.isError && <ErrorState />}
+diff --git a/src/styles.css b/src/styles.css
+index 0d13043..dc11de1 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1,6 +1,14 @@
+ @import "tailwindcss" source(none);
+ @source "../src";
+ @import "tw-animate-css";
++@import "@fontsource/baloo-2/500.css";
++@import "@fontsource/baloo-2/600.css";
++@import "@fontsource/baloo-2/700.css";
++@import "@fontsource/baloo-2/800.css";
++@import "@fontsource/noto-sans-devanagari/devanagari-400.css";
++@import "@fontsource/noto-sans-devanagari/devanagari-500.css";
++@import "@fontsource/noto-sans-devanagari/devanagari-600.css";
++@import "@fontsource/noto-sans-devanagari/devanagari-700.css";
+ 
+ @custom-variant dark (&:is(.dark *));
+ 
+@@ -145,3 +153,8 @@
+ @media (prefers-reduced-motion: reduce) {
+   .animate-splash-logo { animation: none; }
+ }
++
++/* Launch splash overlay (shown over the first route, then fades away) */
++.launch-splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--splash-cream); transition: opacity .5s ease; }
++.launch-splash-exit { opacity: 0; pointer-events: none; }
++.launch-splash-logo { width: 160px; height: 160px; max-width: 50%; object-fit: contain; animation: splash-logo-in .6s ease-out both; }
+diff --git a/vite.config.ts b/vite.config.ts
+index 174e074..43acedc 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -8,6 +8,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+ 
+ export default defineConfig({
+   tanstackStart: {
++    // SPA shell so the Capacitor Android app can bundle the whole UI locally (works offline).
++    spa: { enabled: true },
+     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+     // nitro/vite builds from this
+     server: { entry: "server" },
+-- 
+2.43.0
