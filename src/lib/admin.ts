@@ -1,9 +1,14 @@
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 
 // Server-side actions (push sending) live on the Lovable-hosted copy; other hosts call it there.
 const PUBLISHED = "https://rajendra-janjal-app.lovable.app";
+// Inside the Android app the page itself is served from https://localhost (bundled), which has no
+// server routes, so the app must always call the hosted copy.
 export const apiBase = () =>
-  typeof window !== "undefined" && /lovable\.app$|lovableproject\.com$|localhost$/.test(window.location.hostname)
+  typeof window !== "undefined" &&
+  !Capacitor.isNativePlatform() &&
+  /lovable\.app$|lovableproject\.com$|localhost$/.test(window.location.hostname)
     ? ""
     : PUBLISHED;
 

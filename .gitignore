@@ -33,3 +33,5 @@ dist-ssr
 
 .env
 capacitor-www
+
+android/app/google-services.json

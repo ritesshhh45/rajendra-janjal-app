@@ -6,6 +6,9 @@ export async function registerPush(session: CitizenSession) {
   try {
     const { Capacitor } = await import("@capacitor/core");
     if (!Capacitor.isNativePlatform()) return;
+    // Without Firebase (android/app/google-services.json) PushNotifications.register() crashes the app.
+    // build-app.mjs sets VITE_ENABLE_PUSH=true automatically when that file exists.
+    if (import.meta.env["VITE_ENABLE_PUSH"] !== "true") return;
     const { PushNotifications } = await import("@capacitor/push-notifications");
     let perm = await PushNotifications.checkPermissions();
     if (perm.receive === "prompt") perm = await PushNotifications.requestPermissions();
