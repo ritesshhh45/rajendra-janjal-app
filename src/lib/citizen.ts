@@ -6,7 +6,10 @@ type Auth = { id: string; token: string };
 type PgErr = { message?: string; code?: string; details?: string; hint?: string } | null;
 
 export class CitizenError extends Error {
-  constructor(public kind: "network" | "permission" | "mobile" | "other", message: string) {
+  constructor(
+    public kind: "network" | "permission" | "mobile" | "validation" | "exists" | "limited" | "other",
+    message: string,
+  ) {
     super(message);
   }
 }
@@ -16,8 +19,10 @@ function fail(error: PgErr | unknown, where: string): never {
   console.error(`[citizen] ${where} failed`, { message: e.message, code: e.code, details: e.details, hint: e.hint });
   const msg = e.message ?? String(error);
   if (/fetch|network|Failed to fetch|Load failed/i.test(msg)) throw new CitizenError("network", msg);
+  if (msg.includes("rate_limited")) throw new CitizenError("limited", msg);
   if (e.code === "42501" || /permission|row-level/i.test(msg)) throw new CitizenError("permission", msg);
   if (msg.includes("invalid_mobile")) throw new CitizenError("mobile", msg);
+  if (/invalid_(name|address|dob|message)/.test(msg)) throw new CitizenError("validation", msg);
   throw new CitizenError("other", msg);
 }
 
@@ -36,9 +41,11 @@ export async function registerCitizen({ data }: { data: { name: string; mobile: 
   const rows = await call("register", supabase.rpc("register_citizen", {
     _name: data.name, _mobile: data.mobile, _address: data.address, _dob: data.dob, _device_id: data.device_id ?? null,
   } as never));
-  const r = (rows as unknown as { id: string; token: string; existing: boolean }[])[0];
+  const r = (rows as unknown as { id: string | null; token: string | null; existing: boolean }[])[0];
   if (!r) fail({ message: "No row returned" }, "register");
-  return r;
+  // Mobile already registered and no proof given: server returns an empty row on purpose
+  if (!r.id || !r.token) throw new CitizenError("exists", "mobile_exists");
+  return { id: r.id, token: r.token, existing: r.existing };
 }
 
 export async function getMe({ data }: { data: Auth }) {

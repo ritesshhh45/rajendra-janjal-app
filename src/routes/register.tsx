@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { settingsQuery, fallbacks } from "@/lib/content";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Key } from "@/lib/i18n";
 import { useSession, getDeviceId } from "@/lib/session";
 import { registerCitizen, CitizenError } from "@/lib/citizen";
+import { registerSchema, toAsciiDigits } from "@/lib/validation";
 import { LangToggle } from "@/components/app/LangToggle";
 
 export const Route = createFileRoute("/register")({
@@ -42,25 +43,39 @@ function Register() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errs: Record<string, string> = {};
-    if (form.name.trim().length < 2) errs["name"] = t("required");
-    if (!/^[6-9]\d{9}$/.test(form.mobile)) errs["mobile"] = t("mobileInvalid");
-    if (form.address.trim().length < 3) errs["address"] = t("required");
-    if (!form.dob) errs["dob"] = t("required");
-    setErrors(errs);
-    if (Object.keys(errs).length) return;
+    if (busy) return;
+    const parsed = registerSchema.safeParse(form);
+    if (!parsed.success) {
+      const errs: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const k = String(issue.path[0]);
+        if (!errs[k]) errs[k] = t(issue.message as Key);
+      }
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
     setBusy(true);
     try {
-      const res = await register({ data: { ...form, device_id: getDeviceId() } });
+      // parsed.data is trimmed/cleaned (ASCII digits, single spaces)
+      const res = await register({ data: { ...parsed.data, device_id: getDeviceId() } });
       setSession({ id: res.id, token: res.token });
       navigate({ to: "/home", replace: true });
     } catch (err) {
       const kind = err instanceof CitizenError ? err.kind : "other";
+      const msg = (err as Error)?.message ?? "";
+      const validationKey: Key =
+        /invalid_name/.test(msg) ? "nameInvalid"
+        : /invalid_address/.test(msg) ? "addressShort"
+        : "dobInvalid";
       toast.error(
         kind === "network" ? t("errNetwork")
         : kind === "permission" ? t("errPermission")
         : kind === "mobile" ? t("errMobile")
-        : (err as Error)?.message || t("loadError"),
+        : kind === "exists" ? t("errExists")
+        : kind === "limited" ? t("errLimited")
+        : kind === "validation" ? t(validationKey)
+        : t("loadError"),
       );
     } finally {
       setBusy(false);
@@ -69,8 +84,11 @@ function Register() {
 
   const field = (k: keyof typeof form) => ({
     value: form[k],
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm({ ...form, [k]: k === "mobile" ? e.target.value.replace(/\D/g, "").slice(0, 10) : e.target.value }),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const v = e.target.value;
+      setForm({ ...form, [k]: k === "mobile" ? toAsciiDigits(v).replace(/\D/g, "").slice(0, 10) : v });
+      if (errors[k]) setErrors({ ...errors, [k]: "" });
+    },
   });
 
   return (
@@ -85,22 +103,28 @@ function Register() {
         <div className="absolute inset-0 bg-fade" />
         <div className="absolute right-3 top-3"><LangToggle /></div>
       </div>
-      <form onSubmit={submit} className="relative -mt-10 space-y-4 px-5 pb-10">
+      <form onSubmit={submit} noValidate className="relative -mt-10 space-y-4 px-5 pb-10">
         <div className="animate-rise">
           <h1 className="font-display text-3xl font-extrabold leading-tight text-foreground">{t("welcome")}</h1>
           <p className="mt-1 font-medium text-foreground/75">{t("welcomeSub")}</p>
         </div>
         <Field label={t("fullName")} error={errors["name"]}>
-          <Input className="h-12 text-base" autoComplete="name" {...field("name")} />
+          <Input className="h-12 text-base" autoComplete="name" maxLength={60} {...field("name")} />
         </Field>
         <Field label={t("mobile")} error={errors["mobile"]}>
-          <Input className="h-12 text-base" inputMode="numeric" type="tel" placeholder="98XXXXXXXX" {...field("mobile")} />
+          <Input className="h-12 text-base" inputMode="numeric" type="tel" maxLength={10} placeholder="98XXXXXXXX" {...field("mobile")} />
         </Field>
         <Field label={t("address")} error={errors["address"]}>
-          <Textarea className="min-h-20 text-base" {...field("address")} />
+          <Textarea className="min-h-20 text-base" maxLength={200} {...field("address")} />
         </Field>
         <Field label={t("dob")} error={errors["dob"]}>
-          <Input className="h-12 text-base" type="date" max={new Date().toISOString().slice(0, 10)} {...field("dob")} />
+          <Input
+            className="h-12 text-base"
+            type="date"
+            min="1900-01-01"
+            max={new Date().toISOString().slice(0, 10)}
+            {...field("dob")}
+          />
         </Field>
         <Button type="submit" variant="saffron" size="xl" className="w-full" disabled={busy}>
           {busy && <Loader2 className="animate-spin" />}
