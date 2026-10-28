@@ -1,13 +1,26 @@
-# Ward Connect (app + backend)
-## 1. Backend (database)
-cd backend && npm install && npm start      -> API on :3000, data ward.db madhe save hoto
-(Users baghayla: DB Browser for SQLite ne ward.db ughda)
-## 2. App
-Ek navin terminal: npm install ; npx expo install --fix
-src/config.js madhe API_URL = http://<PC cha LAN IP>:3000   (phone + PC same WiFi)
-npx expo start -> Expo Go madhe QR scan
-Pahilyanda details bhara. Nantar app band/chalu kela tari direct Home ughdto.
-Navin phone var: same email + same DOB takla ki parat login hoto.
-## 3. Production
-Backend HTTPS var host kara (Render/Railway/VPS), API_URL = https://... ; mag: eas build -p android
-Images: raw-images/ madhe thev -> npm run img (compressed webp)
+# Pixel Perfect Capture
+
+Implement exactly the screenshot and nothing else
+
+This project was built with [Lovable](https://lovable.dev).
+
+**Live app**: https://rajendra-janjal-app.lovable.app
+
+## Build with Lovable
+
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/ee88d0a5-0a2c-406b-8b48-631dbbe45d6e).
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+```sh
+git clone <this-repository-url>
+cd <repository-name>
+npm i
+npm run dev
+```
