@@ -6,8 +6,8 @@ import { MobileShell, EmptyState, ErrorState } from "@/components/app/MobileShel
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { schemesQuery, useL } from "@/lib/content";
-import { DbIcon } from "@/components/app/Icon";
 import { useI18n } from "@/lib/i18n";
+import { getSchemeVisual } from "@/lib/visuals";
 
 export const Route = createFileRoute("/schemes")({
   head: () => ({
@@ -45,15 +45,14 @@ function Schemes() {
             key={s.id}
             to="/schemes/$id"
             params={{ id: s.id }}
-            className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card active:scale-[0.99]"
+            className="flex min-w-0 items-center gap-3 rounded-3xl bg-card p-3 shadow-card active:scale-[0.99]"
           >
-            {s.image_url ? (
-              <img src={s.image_url} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
-            ) : (
-              <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary text-primary">
-                <DbIcon name={s.icon} label={`${s.title_mr} ${s.title_en}`} fallback={FileText} className="h-full w-full" />
-              </div>
-            )}
+            <img
+              src={getSchemeVisual(L(s.title_mr, s.title_en)).image}
+              alt={getSchemeVisual(L(s.title_mr, s.title_en)).alt}
+              width={112} height={112} loading="lazy" decoding="async"
+              className="h-20 w-20 shrink-0 rounded-2xl object-cover"
+            />
             <div className="min-w-0 flex-1">
               <p className="font-display font-semibold leading-snug">{L(s.title_mr, s.title_en)}</p>
               <p className="line-clamp-2 text-sm text-muted-foreground">{L(s.description_mr, s.description_en)}</p>

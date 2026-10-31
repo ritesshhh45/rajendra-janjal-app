@@ -1,0 +1,22 @@
+RAJENDRA JANJAL APP — UI / IMAGE PATCH
+
+This is a changes-only patch for the existing project.
+
+INSTALL:
+1. Extract this ZIP.
+2. Copy the included src folder into your existing rajendra-janjal-app-main project folder.
+3. Choose Replace files when Windows asks. This only replaces the listed UI files and adds src/lib/visuals.ts.
+4. Open a terminal in the project root and run:
+      npm run build
+5. If the build succeeds, run your normal dev command / deployment workflow.
+
+WHAT CHANGED:
+- Home page Development Works now use topic-matched photos instead of generic hammer icons.
+- Home page Government Schemes cards use scheme-specific photos.
+- Government Schemes list and detail pages use matching photos instead of repeated/wrong database thumbnails.
+- Services cards use real photographic category images instead of generic tool icons.
+- Image delivery uses the Unsplash image CDN with fixed display widths, auto format negotiation and quality=65 compression; all content images are lazy-loaded and decoded asynchronously.
+- Mobile card widths, image dimensions and horizontal overflow guardrails were tightened.
+
+IMAGE NOTE:
+Images are delivered from the image CDN (internet required). The URLs request modern formats where supported and compressed, resized images rather than full-resolution originals. No database records or credentials are changed by this patch.

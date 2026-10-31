@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { schemesQuery, useL } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
+import { getSchemeVisual } from "@/lib/visuals";
 
 export const Route = createFileRoute("/schemes_/$id")({
   head: () => ({
@@ -34,7 +35,7 @@ function SchemeDetail() {
         <EmptyState icon={FileText} text={t("empty")} />
       ) : (
         <article className="space-y-5 p-5">
-          {s.image_url && <img src={s.image_url} alt="" className="w-full rounded-2xl object-cover" />}
+          <img src={getSchemeVisual(L(s.title_mr, s.title_en)).image} alt={getSchemeVisual(L(s.title_mr, s.title_en)).alt} width={760} height={420} loading="lazy" decoding="async" className="max-h-56 w-full rounded-3xl object-cover" />
           <h2 className="font-display text-2xl font-bold leading-tight">{L(s.title_mr, s.title_en)}</h2>
           {L(s.description_mr, s.description_en) && <p className="text-base leading-relaxed">{L(s.description_mr, s.description_en)}</p>}
           {s.eligibility && <Section title={t("eligibility")} body={s.eligibility} />}

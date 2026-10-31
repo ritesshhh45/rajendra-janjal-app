@@ -1,15 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, AlertTriangle, Hammer, ChevronRight } from "lucide-react";
+import { Bell, AlertTriangle, ChevronRight } from "lucide-react";
 import { MobileShell, SectionHead } from "@/components/app/MobileShell";
 import { LangToggle } from "@/components/app/LangToggle";
 import { LeaderCard } from "@/components/app/LeaderCard";
-import { DbIcon } from "@/components/app/Icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSettings, fallbacks, useL, updatesQuery, worksQuery, schemesQuery, galleryQuery, useUnread } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useMe } from "@/lib/use-me";
 import { SafeImage } from "@/components/app/SafeImage";
+import { getSchemeVisual, getWorkVisual } from "@/lib/visuals";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -37,18 +37,18 @@ function HomePage() {
   const firstName = me?.name?.trim().split(/\s+/)[0];
 
   const header = (
-    <header className="sticky top-0 z-20 flex items-center gap-1.5 bg-background/95 px-3 pb-2 pt-[max(env(safe-area-inset-top),0.5rem)] backdrop-blur">
+    <header className="sticky top-0 z-20 flex pt-safe items-center gap-2 bg-background/95 px-4 pb-3 backdrop-blur">
       {s ? (
-        <SafeImage src={s.header_photo_url} fallback={fallbacks.header} priority alt="" className="h-10 w-10 shrink-0 rounded-full border-2 border-primary object-cover object-top sm:h-11 sm:w-11" />
+        <SafeImage src={s.header_photo_url} fallback={fallbacks.header} priority alt="" className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover object-top" />
       ) : (
-        <Skeleton className="h-10 w-10 shrink-0 rounded-full sm:h-11 sm:w-11" />
+        <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
       )}
-      <p className="min-w-0 flex-1 truncate font-display text-sm font-bold leading-tight sm:text-base">
+      <p className="min-w-0 flex-1 truncate font-display text-lg font-bold leading-tight">
         {t("namaskar")}{firstName ? `, ${firstName}` : ""} 🙏
       </p>
-      {s && <SafeImage src={s.party_logo_url} fallback={fallbacks.logo} priority alt="" className="h-8 w-8 shrink-0 rounded-full object-contain sm:h-9 sm:w-9" />}
-      <Link to="/updates" aria-label={t("updates")} className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-card shadow-card sm:h-10 sm:w-10">
-        <Bell className="h-[18px] w-[18px] text-primary" />
+      {s && <SafeImage src={s.party_logo_url} fallback={fallbacks.logo} priority alt="" className="h-10 w-10 shrink-0 rounded-full object-contain" />}
+      <Link to="/updates" aria-label={t("updates")} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-card shadow-card">
+        <Bell className="h-5 w-5 text-primary" />
         {unread > 0 && (
           <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
             {unread}
@@ -75,10 +75,10 @@ function HomePage() {
       <LeaderCard />
 
       <SectionHead title={t("todayUpdates")} to="/updates" />
-      <div className="no-scrollbar flex gap-3 overflow-x-auto px-5 pb-2">
+      <div className="no-scrollbar flex gap-3 overflow-x-auto px-5 pb-3 snap-x snap-mandatory">
         {updates.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-32 w-64 shrink-0 rounded-3xl" />)}
         {updates.data?.slice(0, 6).map((u) => (
-          <Link key={u.id} to="/updates" className="w-64 shrink-0 rounded-3xl bg-card p-4 shadow-card">
+          <Link key={u.id} to="/updates" className="w-[min(78vw,300px)] shrink-0 snap-start rounded-3xl bg-card p-4 shadow-card">
             <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${u.is_alert ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
               {L(u.category_mr, u.category_en)}
             </span>
@@ -94,11 +94,12 @@ function HomePage() {
         {works.isLoading && <Skeleton className="h-20 rounded-3xl" />}
         {works.data?.slice(0, 4).map((w) => (
           <div key={w.id} className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card">
-            {w.photo_url ? (
-              <img src={w.photo_url} alt="" decoding="async" loading="lazy" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
-            ) : (
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-secondary text-primary"><Hammer className="h-7 w-7" /></div>
-            )}
+            <img
+              src={getWorkVisual(L(w.title_mr, w.title_en)).image}
+              alt={getWorkVisual(L(w.title_mr, w.title_en)).alt}
+              width={112} height={112} decoding="async" loading="lazy"
+              className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-2xl object-cover"
+            />
             <div className="min-w-0 flex-1">
               <p className="font-display font-bold leading-snug">{L(w.title_mr, w.title_en)}</p>
               <p className="line-clamp-1 text-sm text-muted-foreground">{L(w.description_mr, w.description_en)}</p>
@@ -122,11 +123,9 @@ function HomePage() {
       <div className="grid grid-cols-2 gap-3 px-5">
         {schemes.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
         {schemes.data?.slice(0, 4).map((sc) => (
-          <Link key={sc.id} to="/schemes/$id" params={{ id: sc.id }} className="flex min-h-32 flex-col gap-2 rounded-3xl bg-card p-4 shadow-card">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-primary">
-              <DbIcon name={sc.icon} className="h-6 w-6" />
-            </span>
-            <p className="line-clamp-3 font-display text-sm font-bold leading-snug">{L(sc.title_mr, sc.title_en)}</p>
+          <Link key={sc.id} to="/schemes/$id" params={{ id: sc.id }} className="group min-w-0 overflow-hidden rounded-3xl bg-card shadow-card">
+            <img src={getSchemeVisual(L(sc.title_mr, sc.title_en)).image} alt={getSchemeVisual(L(sc.title_mr, sc.title_en)).alt} width={360} height={190} loading="lazy" decoding="async" className="h-24 w-full object-cover transition-transform duration-300 group-active:scale-[1.02]" />
+            <p className="line-clamp-3 min-h-[4.5rem] p-3 font-display text-sm font-bold leading-snug">{L(sc.title_mr, sc.title_en)}</p>
           </Link>
         ))}
       </div>
@@ -136,7 +135,7 @@ function HomePage() {
         {gallery.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-28 shrink-0 rounded-2xl" />)}
         {gallery.data?.slice(0, 8).map((g) => (
           <Link key={g.id} to="/gallery" className="shrink-0">
-            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} className="h-28 w-28 rounded-2xl object-cover" loading="lazy" decoding="async" />
+            <img src={g.image_url} alt={L(g.caption_mr, g.caption_en)} width={112} height={112} className="h-28 w-28 rounded-2xl object-cover" loading="lazy" decoding="async" />
           </Link>
         ))}
       </div>

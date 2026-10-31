@@ -159,3 +159,10 @@
 .launch-splash { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--splash-cream); transition: opacity .5s ease; }
 .launch-splash-exit { opacity: 0; pointer-events: none; }
 .launch-splash-logo { width: 160px; height: 160px; max-width: 50%; object-fit: contain; animation: splash-logo-in .6s ease-out both; }
+
+
+/* Mobile-first image and overflow guardrails for compact Android screens. */
+html, body, #root { min-height: 100%; width: 100%; }
+body { overflow-x: hidden; }
+img { max-width: 100%; }
+button, a { -webkit-tap-highlight-color: transparent; }

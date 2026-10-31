@@ -4,8 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { LayoutGrid, MessageCircle } from "lucide-react";
 import { MobileShell, EmptyState, ErrorState } from "@/components/app/MobileShell";
-import { DbIcon } from "@/components/app/Icon";
-import { ServicePhoto } from "@/components/app/ServicePhoto";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -15,6 +13,7 @@ import { useI18n } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { useMe } from "@/lib/use-me";
 import { submitComplaint } from "@/lib/citizen";
+import { getServiceVisual } from "@/lib/visuals";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -70,16 +69,10 @@ function Services() {
           <button
             key={c.id}
             onClick={() => setCat(c)}
-            className="group flex min-h-[164px] min-w-0 flex-col items-center justify-start gap-2.5 rounded-[1.5rem] border border-border/50 bg-card p-3 text-center shadow-card transition-transform active:scale-[0.98] sm:min-h-[176px]"
+            className="group min-w-0 overflow-hidden rounded-3xl bg-card text-center shadow-card active:scale-[0.97]"
           >
-            <ServicePhoto
-              name={c.name_en}
-              secondaryName={c.name_mr}
-              className="h-[88px] w-full rounded-2xl bg-muted object-cover sm:h-[104px]"
-            />
-            <span className="line-clamp-2 min-h-10 w-full px-1 font-display text-sm font-bold leading-snug sm:text-base">
-              {L(c.name_mr, c.name_en)}
-            </span>
+            <img src={getServiceVisual(L(c.name_mr, c.name_en)).image} alt={getServiceVisual(L(c.name_mr, c.name_en)).alt} width={360} height={220} loading="lazy" decoding="async" className="h-28 w-full object-cover" />
+            <span className="flex min-h-16 items-center justify-center px-2 py-3 font-display font-bold leading-tight">{L(c.name_mr, c.name_en)}</span>
           </button>
         ))}
       </div>
@@ -90,9 +83,7 @@ function Services() {
         <DrawerContent className="mx-auto max-w-[430px]">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-3 font-display text-xl">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-primary">
-                <DbIcon name={cat?.icon} className="h-6 w-6" />
-              </span>
+              {cat && <img src={getServiceVisual(L(cat.name_mr, cat.name_en)).image} alt="" width={64} height={64} className="h-11 w-11 rounded-xl object-cover" />}
               {cat && L(cat.name_mr, cat.name_en)}
             </DrawerTitle>
           </DrawerHeader>
