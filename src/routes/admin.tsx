@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ChevronLeft, Loader2, LogOut } from "lucide-react";
+import { ChevronLeft, Loader2, LogOut, LayoutDashboard, ClipboardList, Users, BellRing, Megaphone, Hammer, FileText, LayoutGrid, Images, Settings as SettingsIcon, ShieldCheck, type LucideIcon } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { CitizensTab } from "@/components/admin/CitizensTab";
 import { NoticesTab } from "@/components/admin/NoticesTab";
 import { GalleryTab } from "@/components/admin/GalleryTab";
 import { AdminsTab } from "@/components/admin/AdminsTab";
+import { OverviewTab } from "@/components/admin/OverviewTab";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -30,8 +31,13 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-const TABS = ["Settings", "Updates", "Works", "Schemes", "Categories", "Citizens", "Notices", "Gallery", "Admins"] as const;
-type Tab = (typeof TABS)[number];
+type Tab = "Overview" | "Complaints" | "Citizens" | "Notifications" | "Updates" | "Works" | "Schemes" | "Categories" | "Gallery" | "Settings" | "Admins";
+const NAV: Array<{ group: string; items: Array<{ id: Tab; icon: LucideIcon }> }> = [
+  { group: "Workspace", items: [{ id: "Overview", icon: LayoutDashboard }] },
+  { group: "Operations", items: [{ id: "Complaints", icon: ClipboardList }, { id: "Citizens", icon: Users }, { id: "Notifications", icon: BellRing }] },
+  { group: "Content", items: [{ id: "Updates", icon: Megaphone }, { id: "Works", icon: Hammer }, { id: "Schemes", icon: FileText }, { id: "Categories", icon: LayoutGrid }, { id: "Gallery", icon: Images }] },
+  { group: "Management", items: [{ id: "Settings", icon: SettingsIcon }, { id: "Admins", icon: ShieldCheck }] },
+];
 
 function Admin() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
@@ -108,7 +114,7 @@ function AuthForm() {
 
 function Panel({ session }: { session: Session }) {
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab | null>(null);
+  const [tab, setTab] = useState<Tab>("Overview");
   const me = useQuery({
     queryKey: ["admin", "me", session.user.id],
     queryFn: async () => {
@@ -121,9 +127,9 @@ function Panel({ session }: { session: Session }) {
 
   const header = (
     <header className="sticky top-0 z-20 flex items-center gap-2 border-b bg-background/95 px-3 pb-2 pt-[max(env(safe-area-inset-top),0.35rem)] backdrop-blur">
-      {tab ? <Button size="icon" variant="ghost" aria-label="Back" className="h-10 w-10 shrink-0 rounded-xl bg-secondary/70" onClick={() => setTab(null)}><ChevronLeft className="h-5 w-5" /></Button> : null}
+      <Link to="/profile" aria-label="Back to app" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary/70"><ChevronLeft className="h-5 w-5" /></Link>
       <div className="min-w-0 flex-1">
-        <h1 className="truncate font-display text-lg font-bold leading-tight sm:text-xl">{tab ?? "Admin panel"}</h1>
+        <h1 className="truncate font-display text-lg font-bold leading-tight sm:text-xl">{tab === "Overview" ? "Operations Center" : tab}</h1>
         <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
       </div>
       <Button variant="outline" size="sm" onClick={logout}><LogOut /> Log out</Button>
@@ -145,13 +151,30 @@ function Panel({ session }: { session: Session }) {
   return (
     <div className="min-h-dvh bg-splash-cream">
       {header}
-      <div className="mx-auto max-w-3xl p-4">
-        <nav className="mb-4 flex flex-wrap gap-2">
-          {TABS.map((t) => (
-            <Button key={t} variant={tab === t ? "saffron" : "outline"} className="rounded-full" onClick={() => setTab(t)}>{t}</Button>
+      <div className="mx-auto flex max-w-6xl gap-5 p-4">
+        <aside className="hidden w-56 shrink-0 md:block">
+          <nav className="sticky top-20 space-y-5">
+            {NAV.map((g) => (
+              <div key={g.group}>
+                <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{g.group}</p>
+                {g.items.map((it) => (
+                  <button key={it.id} onClick={() => setTab(it.id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold ${tab === it.id ? "bg-secondary text-primary" : "text-foreground/80 hover:bg-muted"}`}>
+                    <it.icon className="h-4 w-4" /> {it.id}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </nav>
+        </aside>
+        <div className="min-w-0 flex-1">
+        <nav className="no-scrollbar -mx-1 mb-4 flex gap-2 overflow-x-auto px-1 pb-1 md:hidden">
+          {NAV.flatMap((g) => g.items).map((it) => (
+            <Button key={it.id} size="sm" variant={tab === it.id ? "saffron" : "outline"} className="shrink-0 rounded-full" onClick={() => setTab(it.id)}><it.icon /> {it.id}</Button>
           ))}
         </nav>
-        {!tab && <p className="text-muted-foreground">Choose a section above.</p>}
+        {tab === "Overview" && <OverviewTab go={(t) => setTab(t as Tab)} />}
+        {tab === "Complaints" && <CitizensTab initial="complaints" />}
+        {tab === "Citizens" && <CitizensTab initial="citizens" />}
         {tab === "Settings" && <SettingsTab />}
         {tab === "Updates" && <CrudTab table="updates" invalidate="updates" folder="updates" titleKey="title_en" subKey="title_mr" fields={[
           { key: "title_mr", label: "Title (मराठी)" }, { key: "title_en", label: "Title (English)" },
@@ -177,10 +200,10 @@ function Panel({ session }: { session: Session }) {
           { key: "icon", label: "Category key (optional; e.g. water, road, street-light)" }, { key: "sort_order", label: "Order", type: "number" },
           { key: "active", label: "Active", type: "bool" },
         ]} />}
-        {tab === "Citizens" && <CitizensTab />}
-        {tab === "Notices" && <NoticesTab />}
+        {tab === "Notifications" && <NoticesTab />}
         {tab === "Gallery" && <GalleryTab />}
         {tab === "Admins" && <AdminsTab isPrimary={!!me.data.is_primary} />}
+        </div>
       </div>
     </div>
   );

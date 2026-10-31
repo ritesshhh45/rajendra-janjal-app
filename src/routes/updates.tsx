@@ -32,7 +32,9 @@ function Updates() {
 
   const items: Item[] = [
     ...(u.data ?? []).map((x) => ({ id: x.id, created_at: x.created_at, chip: L(x.category_mr, x.category_en), title: L(x.title_mr, x.title_en), body: L(x.body_mr, x.body_en), alert: x.is_alert })),
-    ...(n.data ?? []).map((x) => ({ id: x.id, created_at: x.created_at, chip: t("notice"), title: x.title, body: x.message, alert: false, image: x.image_url })),
+    ...(n.data ?? [])
+      .filter((x) => !(u.data ?? []).some((y) => (y.title_en === x.title || y.title_mr === x.title) && (y.body_en === x.message || y.body_mr === x.message)))
+      .map((x) => ({ id: x.id, created_at: x.created_at, chip: t("notice"), title: x.title, body: x.message, alert: false, image: x.image_url })),
   ].sort((a, b) => b.created_at.localeCompare(a.created_at));
   const loading = u.isLoading || n.isLoading;
 

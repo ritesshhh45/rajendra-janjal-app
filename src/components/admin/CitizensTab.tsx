@@ -11,8 +11,8 @@ import { waLink } from "@/lib/content";
 
 const statuses = [["submitted", "Submitted"], ["in_progress", "In Progress"], ["resolved", "Resolved"]] as const;
 
-export function CitizensTab() {
-  const [sub, setSub] = useState<"complaints" | "citizens">("complaints");
+export function CitizensTab({ initial = "complaints" }: { initial?: "complaints" | "citizens" }) {
+  const [sub, setSub] = useState<"complaints" | "citizens">(initial);
   return (
     <div className="space-y-4">
       <div className="flex gap-2">

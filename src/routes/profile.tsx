@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ChevronRight, ShieldCheck, Shield, ScrollText, Trash2, Images, UserRound, Phone, ClipboardList } from "lucide-react";
+import { ChevronRight, ShieldCheck, Lock, Shield, ScrollText, Trash2, Images, UserRound, Phone, ClipboardList } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { LeaderCard } from "@/components/app/LeaderCard";
 import { galleryQuery, useL } from "@/lib/content";
@@ -51,14 +51,6 @@ function Profile() {
   const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
   const { data: isAdmin } = useIsAdmin();
-  // Hidden entry for admins who are not signed in yet: tap the version line 7 times.
-  const taps = useRef({ n: 0, t: 0 });
-  const secretTap = () => {
-    const now = Date.now();
-    taps.current = { n: now - taps.current.t > 2500 ? 1 : taps.current.n + 1, t: now };
-    if (taps.current.n >= 7) { taps.current.n = 0; navigate({ to: "/admin" }); }
-  };
-
   useEffect(() => {
     if (me) { setName(me.name); setAddress(me.address); }
   }, [me]);
@@ -151,17 +143,6 @@ function Profile() {
           <Row to="/terms" icon={ScrollText} label={t("terms")} />
         </div>
 
-        {isAdmin && (
-          <Link to="/admin" className="flex items-center gap-3 rounded-3xl bg-saffron p-4 text-primary-foreground shadow-glow active:scale-[0.99]">
-            <ShieldCheck className="h-7 w-7 shrink-0" />
-            <span className="min-w-0 flex-1">
-              <span className="block font-display text-lg font-bold">Admin Panel</span>
-              <span className="block text-sm opacity-90">Manage updates, works, schemes &amp; citizens</span>
-            </span>
-            <ChevronRight className="h-5 w-5 shrink-0" />
-          </Link>
-        )}
-
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline" size="xl" className="w-full border-destructive text-destructive">
@@ -179,7 +160,21 @@ function Profile() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <p onClick={secretTap} className="select-none py-2 text-center text-xs text-muted-foreground">Digital Ward · Ward No. 22</p>
+        {isAdmin ? (
+          <Link to="/admin" className="flex items-center gap-3 rounded-3xl bg-saffron p-4 text-primary-foreground shadow-glow active:scale-[0.99]">
+            <ShieldCheck className="h-7 w-7 shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-display text-lg font-bold">Admin Panel</span>
+              <span className="block text-sm opacity-90">Complaints, notifications, updates &amp; more</span>
+            </span>
+            <ChevronRight className="h-5 w-5 shrink-0" />
+          </Link>
+        ) : (
+          <Link to="/admin" className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-3 text-sm font-semibold text-muted-foreground active:bg-muted">
+            <Lock className="h-4 w-4" /> Admin login
+          </Link>
+        )}
+        <p className="py-1 text-center text-xs text-muted-foreground">Digital Ward · Ward No. 22</p>
       </div>
     </MobileShell>
   );

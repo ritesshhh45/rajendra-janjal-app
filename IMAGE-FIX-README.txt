@@ -15,3 +15,9 @@ UPDATE 2
 - Admin access: Profile shows an "Admin Panel" button ONLY when the logged-in user is an approved admin (src/lib/use-is-admin.ts).
   Not-logged-in admin: tap the footer text "Digital Ward · Ward No. 22" on Profile 7 times -> opens /admin login.
 - Public "Create account" link hidden on /admin login (still works at /admin#signup for adding a new admin, who must be approved by primary admin).
+
+UPDATE 3 - Admin panel
+- New "Operations Center" overview (src/components/admin/OverviewTab.tsx): needs-attention, stats, category bars, last 7 days, recent complaints with Start/Resolve, quick actions.
+- Desktop sidebar + mobile chip menu. Complaints and Citizens are separate tabs; "Notices" is now "Notifications".
+- Notifications: option to also post on Home -> Today's Updates (category + important). Duplicate entries hidden in Updates feed.
+- Profile: "Admin login" row is always visible at the bottom; approved admins see the big "Admin Panel" button.
