@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, AlertTriangle, ChevronRight } from "lucide-react";
+import { Bell, AlertTriangle, Hammer, ChevronRight } from "lucide-react";
 import { MobileShell, SectionHead } from "@/components/app/MobileShell";
 import { LangToggle } from "@/components/app/LangToggle";
 import { LeaderCard } from "@/components/app/LeaderCard";
@@ -37,18 +37,18 @@ function HomePage() {
   const firstName = me?.name?.trim().split(/\s+/)[0];
 
   const header = (
-    <header className="sticky top-0 z-20 flex pt-safe items-center gap-2 bg-background/95 px-4 pb-3 backdrop-blur">
+    <header className="sticky top-0 z-20 flex items-center gap-1.5 bg-background/95 px-3 pb-2 pt-[max(env(safe-area-inset-top),0.5rem)] backdrop-blur">
       {s ? (
-        <SafeImage src={s.header_photo_url} fallback={fallbacks.header} priority alt="" className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover object-top" />
+        <SafeImage src={s.header_photo_url} fallback={fallbacks.header} priority alt="" className="h-10 w-10 shrink-0 rounded-full border-2 border-primary object-cover object-top sm:h-11 sm:w-11" />
       ) : (
-        <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
+        <Skeleton className="h-10 w-10 shrink-0 rounded-full sm:h-11 sm:w-11" />
       )}
-      <p className="min-w-0 flex-1 truncate font-display text-lg font-bold leading-tight">
+      <p className="min-w-0 flex-1 truncate font-display text-sm font-bold leading-tight sm:text-base">
         {t("namaskar")}{firstName ? `, ${firstName}` : ""} 🙏
       </p>
-      {s && <SafeImage src={s.party_logo_url} fallback={fallbacks.logo} priority alt="" className="h-10 w-10 shrink-0 rounded-full object-contain" />}
-      <Link to="/updates" aria-label={t("updates")} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-card shadow-card">
-        <Bell className="h-5 w-5 text-primary" />
+      {s && <SafeImage src={s.party_logo_url} fallback={fallbacks.logo} priority alt="" className="h-8 w-8 shrink-0 rounded-full object-contain sm:h-9 sm:w-9" />}
+      <Link to="/updates" aria-label={t("updates")} className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-card shadow-card sm:h-10 sm:w-10">
+        <Bell className="h-[18px] w-[18px] text-primary" />
         {unread > 0 && (
           <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
             {unread}
@@ -97,9 +97,7 @@ function HomePage() {
             {w.photo_url ? (
               <img src={w.photo_url} alt="" decoding="async" loading="lazy" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
             ) : (
-              <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-secondary text-primary">
-                <DbIcon label={`${w.title_mr} ${w.title_en}`} className="h-full w-full" />
-              </div>
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-secondary text-primary"><Hammer className="h-7 w-7" /></div>
             )}
             <div className="min-w-0 flex-1">
               <p className="font-display font-bold leading-snug">{L(w.title_mr, w.title_en)}</p>
@@ -125,8 +123,8 @@ function HomePage() {
         {schemes.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
         {schemes.data?.slice(0, 4).map((sc) => (
           <Link key={sc.id} to="/schemes/$id" params={{ id: sc.id }} className="flex min-h-32 flex-col gap-2 rounded-3xl bg-card p-4 shadow-card">
-            <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-2xl bg-secondary text-primary">
-              <DbIcon name={sc.icon} label={`${sc.title_mr} ${sc.title_en}`} className="h-full w-full" />
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-primary">
+              <DbIcon name={sc.icon} className="h-6 w-6" />
             </span>
             <p className="line-clamp-3 font-display text-sm font-bold leading-snug">{L(sc.title_mr, sc.title_en)}</p>
           </Link>

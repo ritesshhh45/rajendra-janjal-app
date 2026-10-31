@@ -45,17 +45,17 @@ export function MobileShell({
     <PhoneFrame>
       {header}
       {title && !header && (
-        <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-border/40 bg-background/95 px-3 pb-2 pt-[max(env(safe-area-inset-top),0.35rem)] backdrop-blur">
+        <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-border/40 bg-background/95 px-3 pb-2 pt-[max(env(safe-area-inset-top),0.5rem)] backdrop-blur">
           {back && (
             <button
               onClick={() => (window.history.length > 1 ? window.history.back() : navigate({ to: "/home", replace: true }))}
               aria-label={t("back")}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary/70 text-foreground active:bg-muted"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-secondary/70 text-foreground transition-colors active:bg-muted"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
           )}
-          <h1 className="min-w-0 truncate px-1 font-display text-xl font-bold leading-tight sm:text-2xl">{title}</h1>
+          <h1 className="min-w-0 truncate px-1 font-display text-xl font-bold leading-tight">{title}</h1>
         </header>
       )}
       <main className="pb-28">{children}</main>

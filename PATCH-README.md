@@ -1,27 +1,27 @@
-# Rajendra Janjal App — Changes Only Patch
+# Rajendra Janjal App — UI Fix Patch
 
-This ZIP contains only the changed/new source files. It is not a complete project.
+This is a **changes-only patch** for the supplied `rajendra-janjal-app-main` source ZIP.
+
+## What this patch changes
+- Replaces generic service-category glyphs with locally bundled, topic-matched photographic visuals for water, roads, pipelines, drainage, street lights, electricity, garbage, healthcare, education, and gardens.
+- Adds keyword-based matching for English and Marathi category names. New categories automatically select the closest matching visual; unmatched categories use a neutral local fallback image.
+- Makes service cards more consistent on narrow screens, with fixed image sizing and readable two-line labels.
+- Reduces the back-button/header height and tightens its spacing.
+- Compacts the home header and language switch so the greeting is less likely to be cut off on phones.
 
 ## Apply
-1. Extract this ZIP.
-2. Copy the `src/` folder into the root of your existing project.
-3. Allow Windows to merge folders and replace the matching files.
+1. Back up your current project.
+2. Extract this ZIP.
+3. Copy/merge the included `src/` and `public/` folders into your project root, allowing the listed files to be replaced.
 4. From the project root run:
-   - `npm install` (only if dependencies are not installed)
-   - `npm test`
-   - `npm run build`
 
-## Changes
-- `src/components/app/Icon.tsx`: subject-photo resolver for water, road, pipeline, street lights, drainage, garbage, garden, health, education, electricity, housing, welfare, appointments and notices. Unknown categories retain a semantic icon fallback.
-- `src/routes/services.tsx`: responsive two-column photo category cards and compact drawer heading.
-- `src/routes/home.tsx`: development-work cards use title-based subject photography when no work photo is uploaded.
-- `src/routes/schemes.tsx`: scheme photo fallback is selected from the scheme title.
-- `src/components/app/MobileShell.tsx`: compact back control, safer top spacing, and improved mobile title sizing.
-- `src/routes/admin.tsx`: matching compact admin back control and clearer category-key hint.
-- `src/test/categoryImages.test.ts`: tests for category photo matching.
+```bash
+npm install
+npm run build
+```
 
-## Photo source note
-The category photos are loaded from Unsplash image CDN URLs at runtime. Internet access is required to display these photos. If an image URL fails, the app falls back to a semantic Lucide icon. Admin-uploaded scheme/work photos continue to take precedence.
-
-## Important
-No database schema change is required. Existing service-category records keep working; image selection uses the Marathi/English category names and the existing `icon` value.
+## Notes
+- All service visuals are included locally under `public/images/services/`; they do not depend on remote image URLs.
+- This patch does not include `node_modules`, `.env`, build output, or your Supabase data.
+- The supplied source ZIP did not include the live Supabase records. If a category's database name is unusual, add its keyword to `SERVICE_IMAGES` in `src/components/app/ServicePhoto.tsx`.
+- A full build could not be run in this patch environment because dependencies were not installed. Run the build command above after merging.

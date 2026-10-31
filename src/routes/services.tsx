@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { LayoutGrid, MessageCircle } from "lucide-react";
 import { MobileShell, EmptyState, ErrorState } from "@/components/app/MobileShell";
 import { DbIcon } from "@/components/app/Icon";
+import { ServicePhoto } from "@/components/app/ServicePhoto";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -69,12 +70,16 @@ function Services() {
           <button
             key={c.id}
             onClick={() => setCat(c)}
-            className="group flex min-h-[148px] min-w-0 flex-col items-center justify-center gap-2.5 rounded-3xl border border-border/60 bg-card p-3 text-center shadow-card transition-transform active:scale-[0.98] sm:min-h-40 sm:p-4"
+            className="group flex min-h-[164px] min-w-0 flex-col items-center justify-start gap-2.5 rounded-[1.5rem] border border-border/50 bg-card p-3 text-center shadow-card transition-transform active:scale-[0.98] sm:min-h-[176px]"
           >
-            <span className="grid h-[76px] w-full max-w-[112px] place-items-center overflow-hidden rounded-2xl bg-secondary sm:h-24 sm:max-w-[132px]">
-              <DbIcon name={c.icon} label={`${c.name_mr} ${c.name_en}`} className="h-full w-full" />
+            <ServicePhoto
+              name={c.name_en}
+              secondaryName={c.name_mr}
+              className="h-[88px] w-full rounded-2xl bg-muted object-cover sm:h-[104px]"
+            />
+            <span className="line-clamp-2 min-h-10 w-full px-1 font-display text-sm font-bold leading-snug sm:text-base">
+              {L(c.name_mr, c.name_en)}
             </span>
-            <span className="line-clamp-2 break-words font-display text-sm font-bold leading-snug sm:text-base">{L(c.name_mr, c.name_en)}</span>
           </button>
         ))}
       </div>
@@ -85,8 +90,8 @@ function Services() {
         <DrawerContent className="mx-auto max-w-[430px]">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-3 font-display text-xl">
-              <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary">
-                <DbIcon name={cat?.icon} label={cat ? `${cat.name_mr} ${cat.name_en}` : undefined} className="h-full w-full" />
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-primary">
+                <DbIcon name={cat?.icon} className="h-6 w-6" />
               </span>
               {cat && L(cat.name_mr, cat.name_en)}
             </DrawerTitle>
