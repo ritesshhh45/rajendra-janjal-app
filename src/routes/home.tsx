@@ -11,6 +11,7 @@ import { useMe } from "@/lib/use-me";
 import { SafeImage } from "@/components/app/SafeImage";
 import { getSchemeVisual, getWorkVisual } from "@/lib/visuals";
 import { VisualImg } from "@/components/app/VisualImg";
+import { UpdateCard } from "@/components/app/UpdateCard";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -77,16 +78,8 @@ function HomePage() {
 
       <SectionHead title={t("todayUpdates")} to="/updates" />
       <div className="no-scrollbar flex gap-3 overflow-x-auto px-5 pb-3 snap-x snap-mandatory">
-        {updates.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-32 w-64 shrink-0 rounded-3xl" />)}
-        {updates.data?.slice(0, 6).map((u) => (
-          <Link key={u.id} to="/updates" className="w-[min(78vw,300px)] shrink-0 snap-start rounded-3xl bg-card p-4 shadow-card">
-            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${u.is_alert ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
-              {L(u.category_mr, u.category_en)}
-            </span>
-            <p className="mt-2 line-clamp-1 font-display font-bold">{L(u.title_mr, u.title_en)}</p>
-            <p className="line-clamp-2 text-sm text-muted-foreground">{L(u.body_mr, u.body_en)}</p>
-          </Link>
-        ))}
+        {updates.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-44 w-[min(78vw,300px)] shrink-0 rounded-3xl" />)}
+        {updates.data?.slice(0, 6).map((u) => <UpdateCard key={u.id} u={u} />)}
         {updates.data?.length === 0 && <p className="text-muted-foreground">{t("empty")}</p>}
       </div>
 

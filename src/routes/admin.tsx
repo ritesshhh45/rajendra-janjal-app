@@ -95,7 +95,9 @@ function AuthForm() {
         <Button type="submit" variant="saffron" size="xl" className="w-full" disabled={busy}>{busy && <Loader2 className="animate-spin" />} {mode === "login" ? "Log in" : mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset link" : "Save password"}</Button>
         <div className="flex justify-between text-sm">
           {mode === "login" ? <>
-            <button type="button" className="text-primary" onClick={() => setMode("signup")}>Create account</button>
+            {typeof window !== "undefined" && window.location.hash === "#signup"
+              ? <button type="button" className="text-primary" onClick={() => setMode("signup")}>Create account</button>
+              : <span />}
             <button type="button" className="text-primary" onClick={() => setMode("forgot")}>Forgot password?</button>
           </> : <button type="button" className="text-primary" onClick={() => setMode("login")}>Back to login</button>}
         </div>
