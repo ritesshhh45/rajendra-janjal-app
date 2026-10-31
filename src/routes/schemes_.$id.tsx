@@ -39,7 +39,7 @@ function SchemeDetail() {
           {L(s.description_mr, s.description_en) && <p className="text-base leading-relaxed">{L(s.description_mr, s.description_en)}</p>}
           {s.eligibility && <Section title={t("eligibility")} body={s.eligibility} />}
           {s.how_to_apply && <Section title={t("howToApply")} body={s.how_to_apply} />}
-          {s.apply_link && (
+          {s.apply_link && /^https?:\/\//i.test(s.apply_link) && (
             <Button asChild variant="saffron" size="xl" className="w-full">
               <a href={s.apply_link} target="_blank" rel="noreferrer">
                 {t("applyNow")} <ExternalLink />

@@ -2,7 +2,7 @@
 // Never throws: on any failure it returns the original text so publishing is never blocked.
 
 // Optional: set VITE_TRANSLATE_EMAIL in .env to raise the free MyMemory daily limit.
-const CONTACT_EMAIL = (import.meta.env.VITE_TRANSLATE_EMAIL as string | undefined) ?? "";
+const CONTACT_EMAIL = (import.meta.env["VITE_TRANSLATE_EMAIL"] as string | undefined) ?? "";
 
 function chunkText(text: string, max = 140): string[] {
   // MyMemory allows ~500 bytes per request; Marathi is 3 bytes/char, so keep chunks short.

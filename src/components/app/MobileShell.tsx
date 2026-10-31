@@ -45,7 +45,7 @@ export function MobileShell({
     <PhoneFrame>
       {header}
       {title && !header && (
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/95 px-3 backdrop-blur">
+        <header className="sticky top-0 z-20 flex pt-safe items-center gap-2 bg-background/95 px-3 pb-3 backdrop-blur border-b border-border/40">
           {back && (
             <button
               onClick={() => (window.history.length > 1 ? window.history.back() : navigate({ to: "/home", replace: true }))}

@@ -37,7 +37,7 @@ function HomePage() {
   const firstName = me?.name?.trim().split(/\s+/)[0];
 
   const header = (
-    <header className="sticky top-0 z-20 flex items-center gap-2 bg-background/95 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-20 flex pt-safe items-center gap-2 bg-background/95 px-4 pb-3 backdrop-blur">
       {s ? (
         <SafeImage src={s.header_photo_url} fallback={fallbacks.header} priority alt="" className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover object-top" />
       ) : (

@@ -65,7 +65,12 @@ function Profile() {
   };
 
   const remove = async () => {
-    if (session) await del({ data: session });
+    try {
+      if (session) await del({ data: session });
+    } catch {
+      toast.error(t("loadError"));
+      return;
+    }
     qc.clear();
     setSession(null);
     navigate({ to: "/register", replace: true });

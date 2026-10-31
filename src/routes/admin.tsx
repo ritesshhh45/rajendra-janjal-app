@@ -118,7 +118,7 @@ function Panel({ session }: { session: Session }) {
   const logout = async () => { await supabase.auth.signOut(); qc.removeQueries({ queryKey: ["admin"] }); };
 
   const header = (
-    <header className="sticky top-0 z-20 flex items-center gap-2 border-b bg-background/95 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-20 flex pt-safe items-center gap-2 border-b bg-background/95 px-4 pb-3 backdrop-blur">
       {tab ? <Button size="icon" variant="ghost" aria-label="Back" onClick={() => setTab(null)}><ChevronLeft /></Button> : null}
       <div className="min-w-0 flex-1">
         <h1 className="font-display text-xl font-bold leading-tight">{tab ?? "Admin panel"}</h1>

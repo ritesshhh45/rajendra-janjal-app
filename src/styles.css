@@ -142,6 +142,7 @@
 @utility shadow-card { box-shadow: var(--shadow-card); }
 @utility shadow-glow { box-shadow: var(--shadow-glow); }
 @utility pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+@utility pt-safe { padding-top: max(env(safe-area-inset-top), 0.75rem); }
 
 @keyframes splash-logo-in { from { transform: scale(.9); opacity: 0 } to { transform: scale(1); opacity: 1 } }
 @utility animate-splash-logo { animation: splash-logo-in .6s ease-out both; }

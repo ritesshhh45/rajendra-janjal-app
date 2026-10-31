@@ -2,7 +2,8 @@ import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 
 // Server-side actions (push sending) live on the Lovable-hosted copy; other hosts call it there.
-const PUBLISHED = "https://rajendra-bhau-app.lovable.app";
+// The admin login token is sent to this host: it MUST be your own deployed project. Set VITE_API_BASE to override.
+const PUBLISHED = (import.meta.env["VITE_API_BASE"] as string | undefined) || "https://rajendra-bhau-app.lovable.app";
 // Inside the Android app the page itself is served from https://localhost (bundled), which has no
 // server routes, so the app must always call the hosted copy.
 export const apiBase = () =>

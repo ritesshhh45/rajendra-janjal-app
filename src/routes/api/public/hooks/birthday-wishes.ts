@@ -6,9 +6,10 @@ export const Route = createFileRoute("/api/public/hooks/birthday-wishes")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        if (!request.headers.get("authorization")?.startsWith("Bearer ")) {
-          return Response.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        // Verifies the real cron secret (LOVABLE_CRON_SECRET). Before, ANY "Bearer x" header was accepted.
+        const { authenticateCronRequest } = await import("@/integrations/supabase/cron-auth");
+        const denied = await authenticateCronRequest(request);
+        if (denied) return denied;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { FcmNotConfigured, sendToTokens } = await import("@/lib/fcm.server");
 
