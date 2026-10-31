@@ -14,6 +14,7 @@ import { useSession } from "@/lib/session";
 import { useMe } from "@/lib/use-me";
 import { submitComplaint } from "@/lib/citizen";
 import { getServiceVisual } from "@/lib/visuals";
+import { VisualImg } from "@/components/app/VisualImg";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -71,7 +72,7 @@ function Services() {
             onClick={() => setCat(c)}
             className="group min-w-0 overflow-hidden rounded-3xl bg-card text-center shadow-card active:scale-[0.97]"
           >
-            <img src={getServiceVisual(L(c.name_mr, c.name_en)).image} alt={getServiceVisual(L(c.name_mr, c.name_en)).alt} width={360} height={220} loading="lazy" decoding="async" className="h-28 w-full object-cover" />
+            <VisualImg src={getServiceVisual(c.name_en, c.name_mr).image} alt={getServiceVisual(c.name_en, c.name_mr).alt} width={360} height={220} className="h-28 w-full object-cover" />
             <span className="flex min-h-16 items-center justify-center px-2 py-3 font-display font-bold leading-tight">{L(c.name_mr, c.name_en)}</span>
           </button>
         ))}
@@ -83,7 +84,7 @@ function Services() {
         <DrawerContent className="mx-auto max-w-[430px]">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-3 font-display text-xl">
-              {cat && <img src={getServiceVisual(L(cat.name_mr, cat.name_en)).image} alt="" width={64} height={64} className="h-11 w-11 rounded-xl object-cover" />}
+              {cat && <VisualImg src={getServiceVisual(cat.name_en, cat.name_mr).image} alt="" width={64} height={64} className="h-11 w-11 rounded-xl object-cover" />}
               {cat && L(cat.name_mr, cat.name_en)}
             </DrawerTitle>
           </DrawerHeader>

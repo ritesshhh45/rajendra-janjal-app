@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { schemesQuery, useL } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { getSchemeVisual } from "@/lib/visuals";
+import { VisualImg } from "@/components/app/VisualImg";
 
 export const Route = createFileRoute("/schemes")({
   head: () => ({
@@ -47,10 +48,11 @@ function Schemes() {
             params={{ id: s.id }}
             className="flex min-w-0 items-center gap-3 rounded-3xl bg-card p-3 shadow-card active:scale-[0.99]"
           >
-            <img
-              src={getSchemeVisual(L(s.title_mr, s.title_en)).image}
-              alt={getSchemeVisual(L(s.title_mr, s.title_en)).alt}
-              width={112} height={112} loading="lazy" decoding="async"
+            <VisualImg
+              fallback="/images/schemes/general.webp"
+              src={getSchemeVisual(`${s.title_en} ${s.title_mr}`).image}
+              alt={getSchemeVisual(`${s.title_en} ${s.title_mr}`).alt}
+              width={112} height={112}
               className="h-20 w-20 shrink-0 rounded-2xl object-cover"
             />
             <div className="min-w-0 flex-1">

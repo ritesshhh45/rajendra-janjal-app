@@ -10,6 +10,7 @@ import { useI18n } from "@/lib/i18n";
 import { useMe } from "@/lib/use-me";
 import { SafeImage } from "@/components/app/SafeImage";
 import { getSchemeVisual, getWorkVisual } from "@/lib/visuals";
+import { VisualImg } from "@/components/app/VisualImg";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -94,9 +95,9 @@ function HomePage() {
         {works.isLoading && <Skeleton className="h-20 rounded-3xl" />}
         {works.data?.slice(0, 4).map((w) => (
           <div key={w.id} className="flex items-center gap-3 rounded-3xl bg-card p-3 shadow-card">
-            <img
-              src={getWorkVisual(L(w.title_mr, w.title_en)).image}
-              alt={getWorkVisual(L(w.title_mr, w.title_en)).alt}
+            <VisualImg
+              src={getWorkVisual(`${w.title_en} ${w.title_mr}`).image}
+              alt={getWorkVisual(`${w.title_en} ${w.title_mr}`).alt}
               width={112} height={112} decoding="async" loading="lazy"
               className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-2xl object-cover"
             />
@@ -124,7 +125,7 @@ function HomePage() {
         {schemes.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-32 rounded-3xl" />)}
         {schemes.data?.slice(0, 4).map((sc) => (
           <Link key={sc.id} to="/schemes/$id" params={{ id: sc.id }} className="group min-w-0 overflow-hidden rounded-3xl bg-card shadow-card">
-            <img src={getSchemeVisual(L(sc.title_mr, sc.title_en)).image} alt={getSchemeVisual(L(sc.title_mr, sc.title_en)).alt} width={360} height={190} loading="lazy" decoding="async" className="h-24 w-full object-cover transition-transform duration-300 group-active:scale-[1.02]" />
+            <VisualImg fallback="/images/schemes/general.webp" src={getSchemeVisual(`${sc.title_en} ${sc.title_mr}`).image} alt={getSchemeVisual(`${sc.title_en} ${sc.title_mr}`).alt} width={360} height={190} loading="lazy" decoding="async" className="h-24 w-full object-cover transition-transform duration-300 group-active:scale-[1.02]" />
             <p className="line-clamp-3 min-h-[4.5rem] p-3 font-display text-sm font-bold leading-snug">{L(sc.title_mr, sc.title_en)}</p>
           </Link>
         ))}
