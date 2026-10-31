@@ -69,12 +69,12 @@ function Services() {
           <button
             key={c.id}
             onClick={() => setCat(c)}
-            className="flex min-h-32 flex-col items-center justify-center gap-3 rounded-3xl bg-card p-4 text-center shadow-card active:scale-[0.97]"
+            className="group flex min-h-[148px] min-w-0 flex-col items-center justify-center gap-2.5 rounded-3xl border border-border/60 bg-card p-3 text-center shadow-card transition-transform active:scale-[0.98] sm:min-h-40 sm:p-4"
           >
-            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-secondary text-primary">
-              <DbIcon name={c.icon} className="h-7 w-7" />
+            <span className="grid h-[76px] w-full max-w-[112px] place-items-center overflow-hidden rounded-2xl bg-secondary sm:h-24 sm:max-w-[132px]">
+              <DbIcon name={c.icon} label={`${c.name_mr} ${c.name_en}`} className="h-full w-full" />
             </span>
-            <span className="font-display font-bold leading-tight">{L(c.name_mr, c.name_en)}</span>
+            <span className="line-clamp-2 break-words font-display text-sm font-bold leading-snug sm:text-base">{L(c.name_mr, c.name_en)}</span>
           </button>
         ))}
       </div>
@@ -85,8 +85,8 @@ function Services() {
         <DrawerContent className="mx-auto max-w-[430px]">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-3 font-display text-xl">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-primary">
-                <DbIcon name={cat?.icon} className="h-6 w-6" />
+              <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary">
+                <DbIcon name={cat?.icon} label={cat ? `${cat.name_mr} ${cat.name_en}` : undefined} className="h-full w-full" />
               </span>
               {cat && L(cat.name_mr, cat.name_en)}
             </DrawerTitle>

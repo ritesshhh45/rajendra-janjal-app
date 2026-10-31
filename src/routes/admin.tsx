@@ -118,10 +118,10 @@ function Panel({ session }: { session: Session }) {
   const logout = async () => { await supabase.auth.signOut(); qc.removeQueries({ queryKey: ["admin"] }); };
 
   const header = (
-    <header className="sticky top-0 z-20 flex pt-safe items-center gap-2 border-b bg-background/95 px-4 pb-3 backdrop-blur">
-      {tab ? <Button size="icon" variant="ghost" aria-label="Back" onClick={() => setTab(null)}><ChevronLeft /></Button> : null}
+    <header className="sticky top-0 z-20 flex items-center gap-2 border-b bg-background/95 px-3 pb-2 pt-[max(env(safe-area-inset-top),0.35rem)] backdrop-blur">
+      {tab ? <Button size="icon" variant="ghost" aria-label="Back" className="h-10 w-10 shrink-0 rounded-xl bg-secondary/70" onClick={() => setTab(null)}><ChevronLeft className="h-5 w-5" /></Button> : null}
       <div className="min-w-0 flex-1">
-        <h1 className="font-display text-xl font-bold leading-tight">{tab ?? "Admin panel"}</h1>
+        <h1 className="truncate font-display text-lg font-bold leading-tight sm:text-xl">{tab ?? "Admin panel"}</h1>
         <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
       </div>
       <Button variant="outline" size="sm" onClick={logout}><LogOut /> Log out</Button>
@@ -172,7 +172,7 @@ function Panel({ session }: { session: Session }) {
         ]} />}
         {tab === "Categories" && <CrudTab table="service_categories" invalidate="categories" folder="categories" titleKey="name_en" subKey="name_mr" order="sort_order" ascending fields={[
           { key: "name_mr", label: "Name (मराठी)" }, { key: "name_en", label: "Name (English)" },
-          { key: "icon", label: "Icon name (e.g. Wrench, Droplet, Lightbulb)" }, { key: "sort_order", label: "Order", type: "number" },
+          { key: "icon", label: "Category key (optional; e.g. water, road, street-light)" }, { key: "sort_order", label: "Order", type: "number" },
           { key: "active", label: "Active", type: "bool" },
         ]} />}
         {tab === "Citizens" && <CitizensTab />}

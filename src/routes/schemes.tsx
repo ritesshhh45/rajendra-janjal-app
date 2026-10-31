@@ -50,8 +50,8 @@ function Schemes() {
             {s.image_url ? (
               <img src={s.image_url} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
             ) : (
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
-                <DbIcon name={s.icon} fallback={FileText} className="h-7 w-7" />
+              <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-secondary text-primary">
+                <DbIcon name={s.icon} label={`${s.title_mr} ${s.title_en}`} fallback={FileText} className="h-full w-full" />
               </div>
             )}
             <div className="min-w-0 flex-1">
